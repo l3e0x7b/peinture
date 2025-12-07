@@ -45,6 +45,9 @@ export const translations = {
     reset: "Reset",
     promptHistory: "Prompt History",
     historyEmpty: "No history available",
+    sourceCode: "Source Code",
+    hdEnabled: "High Definition Enabled",
+    hdDisabled: "Enable High Definition",
 
     // Aspect Ratios
     ar_square: "Default 1:1",
@@ -97,6 +100,9 @@ export const translations = {
     reset: "重置",
     promptHistory: "历史提示词",
     historyEmpty: "暂无历史记录",
+    sourceCode: "开源代码",
+    hdEnabled: "已启用高清模式",
+    hdDisabled: "启用高清模式",
 
     // Aspect Ratios
     ar_square: "默认 1:1",

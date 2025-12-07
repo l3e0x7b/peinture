@@ -6,6 +6,7 @@ import { CustomSelect } from './components/CustomSelect';
 import { SettingsModal } from './components/SettingsModal';
 import { Logo, Icon4x } from './components/Icons'
 import { ImageComparison } from './components/ImageComparison';
+import { Tooltip } from './components/Tooltip';
 import { TransformWrapper, TransformComponent } from 'react-zoom-pan-pinch';
 import { translations, Language } from './translations';
 import { 
@@ -448,28 +449,33 @@ export default function App() {
     <div className="relative flex h-auto min-h-screen w-full flex-col overflow-x-hidden bg-gradient-brilliant">
       <div className="flex h-full grow flex-col">
         {/* Header */}
-        <header className="flex items-center justify-between px-6 py-2 md:px-8 md:py-4 backdrop-blur-md sticky top-0 z-50 bg-background-dark/30 border-b border-white/5">
-          <div className="flex items-center gap-2 text-white">
-            <Logo />
-            <h1 className="text-white text-xl font-bold leading-tight tracking-[-0.015em]">{t.appTitle}</h1>
-          </div>
-          
-          <div className="flex gap-1">
-            <a
-              href="https://github.com/Amery2010/peinture"
-              className="flex items-center justify-center p-2 rounded-lg text-white/70 hover:text-white hover:bg-white/10 transition-all active:scale-95"
-              target="_blank"
-            >
-              <Github className="w-5 h-5" />
-            </a>
+        <header className="w-full backdrop-blur-md sticky top-0 z-50 bg-background-dark/30 border-b border-white/5">
+          <div className="max-w-7xl mx-auto flex items-center justify-between px-6 py-2 md:px-8 md:py-4">
+            <div className="flex items-center gap-2 text-white">
+              <Logo />
+              <h1 className="text-white text-xl font-bold leading-tight tracking-[-0.015em]">{t.appTitle}</h1>
+            </div>
+            
+            <div className="flex gap-1">
+              <Tooltip content={t.sourceCode} position="bottom">
+                  <a
+                    href="https://github.com/Amery2010/peinture"
+                    className="flex items-center justify-center p-2 rounded-lg text-white/70 hover:text-white hover:bg-white/10 transition-all active:scale-95"
+                    target="_blank"
+                  >
+                    <Github className="w-5 h-5" />
+                  </a>
+              </Tooltip>
 
-            <button
-              onClick={() => setShowSettings(true)}
-              className="flex items-center justify-center p-2 rounded-lg text-white/70 hover:text-white hover:bg-white/10 transition-all active:scale-95"
-              title={t.settings}
-            >
-              <Settings className="w-5 h-5" />
-            </button>
+              <Tooltip content={t.settings} position="bottom">
+                  <button
+                    onClick={() => setShowSettings(true)}
+                    className="flex items-center justify-center p-2 rounded-lg text-white/70 hover:text-white hover:bg-white/10 transition-all active:scale-95"
+                  >
+                    <Settings className="w-5 h-5" />
+                  </button>
+              </Tooltip>
+            </div>
           </div>
         </header>
 
@@ -488,18 +494,19 @@ export default function App() {
 
                           {/* History Prompt Button */}
                           <div className="relative" ref={promptHistoryRef}>
-                              <button
-                                  onClick={(e) => {
-                                      e.preventDefault();
-                                      e.stopPropagation();
-                                      setShowPromptHistory(!showPromptHistory);
-                                  }}
-                                  className={`flex items-center justify-center h-7 w-7 rounded-lg text-white/60 hover:text-white hover:bg-white/10 transition-all border border-transparent hover:border-white/10 animate-in fade-in zoom-in-0 duration-300 ${showPromptHistory ? 'text-purple-400 bg-white/10 border-white/10' : ''}`}
-                                  title={t.promptHistory}
-                                  type="button"
-                              >
-                                  <History className="w-4 h-4" />
-                              </button>
+                              <Tooltip content={t.promptHistory}>
+                                  <button
+                                      onClick={(e) => {
+                                          e.preventDefault();
+                                          e.stopPropagation();
+                                          setShowPromptHistory(!showPromptHistory);
+                                      }}
+                                      className={`flex items-center justify-center h-7 w-7 rounded-lg text-white/60 hover:text-white hover:bg-white/10 transition-all border border-transparent hover:border-white/10 animate-in fade-in zoom-in-0 duration-300 ${showPromptHistory ? 'text-purple-400 bg-white/10 border-white/10' : ''}`}
+                                      type="button"
+                                  >
+                                      <History className="w-4 h-4" />
+                                  </button>
+                              </Tooltip>
                               
                               {/* History Dropdown */}
                               {showPromptHistory && (
@@ -531,20 +538,21 @@ export default function App() {
                           </div>
                         </div>
 
-                        <button
-                            onClick={handleOptimizePrompt}
-                            disabled={isOptimizing || !prompt.trim()}
-                            className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-white/60 bg-white/5 hover:bg-white/10 hover:text-purple-300 rounded-lg transition-all border border-white/5 disabled:opacity-50 disabled:cursor-not-allowed"
-                            title={t.optimizeTitle}
-                            type="button"
-                        >
-                            {isOptimizing ? (
-                                <Loader2 className="w-3.5 h-3.5 animate-spin" />
-                            ) : (
-                                <Wand2 className="w-3.5 h-3.5" />
-                            )}
-                            {isOptimizing ? t.optimizing : t.optimize}
-                        </button>
+                        <Tooltip content={t.optimizeTitle}>
+                            <button
+                                onClick={handleOptimizePrompt}
+                                disabled={isOptimizing || !prompt.trim()}
+                                className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-white/60 bg-white/5 hover:bg-white/10 hover:text-purple-300 rounded-lg transition-all border border-white/5 disabled:opacity-50 disabled:cursor-not-allowed"
+                                type="button"
+                            >
+                                {isOptimizing ? (
+                                    <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                                ) : (
+                                    <Wand2 className="w-3.5 h-3.5" />
+                                )}
+                                {isOptimizing ? t.optimizing : t.optimize}
+                            </button>
+                        </Tooltip>
                     </div>
                     <textarea 
                       id="prompt-input"
@@ -569,15 +577,16 @@ export default function App() {
                         model === 'z-image-turbo' && (
                             <div className="flex items-center gap-2 animate-in fade-in duration-300">
                                 <span className="text-xs font-medium text-white/50">{t.hd}</span>
-                                <button
-                                    onClick={() => setEnableHD(!enableHD)}
-                                    className={`relative inline-flex h-5 w-9 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-purple-500/50 ${enableHD ? 'bg-purple-600' : 'bg-white/10'}`}
-                                    title={enableHD ? "High Definition Enabled" : "Enable High Definition"}
-                                >
-                                    <span
-                                        className={`${enableHD ? 'translate-x-4' : 'translate-x-1'} inline-block h-3.5 w-3.5 transform rounded-full bg-white transition-transform`}
-                                    />
-                                </button>
+                                <Tooltip content={enableHD ? t.hdEnabled : t.hdDisabled}>
+                                    <button
+                                        onClick={() => setEnableHD(!enableHD)}
+                                        className={`relative inline-flex h-5 w-9 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-purple-500/50 ${enableHD ? 'bg-purple-600' : 'bg-white/10'}`}
+                                    >
+                                        <span
+                                            className={`${enableHD ? 'translate-x-4' : 'translate-x-1'} inline-block h-3.5 w-3.5 transform rounded-full bg-white transition-transform`}
+                                        />
+                                    </button>
+                                </Tooltip>
                             </div>
                         )
                     }
@@ -620,13 +629,14 @@ export default function App() {
                         </button>
                       </div>
                       
-                      <button 
-                        onClick={handleRandomizeSeed}
-                        aria-label="Randomize Seed" 
-                        className="flex h-12 w-12 shrink-0 cursor-pointer items-center justify-center overflow-hidden rounded-lg bg-white/10 text-white/60 hover:bg-white/20 hover:text-white transition-colors active:scale-95"
-                      >
-                        <Dices className="w-5 h-5" />
-                      </button>
+                      <Tooltip content={t.seedPlaceholder}>
+                          <button 
+                            onClick={handleRandomizeSeed}
+                            className="flex h-12 w-12 shrink-0 cursor-pointer items-center justify-center overflow-hidden rounded-lg bg-white/10 text-white/60 hover:bg-white/20 hover:text-white transition-colors active:scale-95"
+                          >
+                            <Dices className="w-5 h-5" />
+                          </button>
+                      </Tooltip>
                     </div>
                   </div>
                 </div>
@@ -653,13 +663,14 @@ export default function App() {
                 </button>
 
                 {currentImage && (
-                    <button 
-                        onClick={handleReset}
-                        title={t.reset}
-                        className="flex-shrink-0 flex items-center justify-center w-12 h-12 rounded-xl bg-white/5 border border-white/10 text-white/70 hover:text-white hover:bg-white/10 hover:border-white/20 transition-all shadow-lg active:scale-95"
-                    >
-                        <RotateCcw className="w-5 h-5" />
-                    </button>
+                    <Tooltip content={t.reset}>
+                        <button 
+                            onClick={handleReset}
+                            className="flex-shrink-0 flex items-center justify-center w-12 h-12 rounded-xl bg-white/5 border border-white/10 text-white/70 hover:text-white hover:bg-white/10 hover:border-white/20 transition-all shadow-lg active:scale-95"
+                        >
+                            <RotateCcw className="w-5 h-5" />
+                        </button>
+                    </Tooltip>
                 )}
               </div>
 
@@ -827,56 +838,61 @@ export default function App() {
                             /* Standard Toolbar */
                             <div className="pointer-events-auto flex items-center gap-1 p-1.5 rounded-2xl bg-black/60 backdrop-blur-md border border-white/10 shadow-2xl transition-opacity duration-300 opacity-100 md:opacity-0 md:group-hover:opacity-100">
                                 
-                                <button
-                                    onClick={() => setShowInfo(!showInfo)}
-                                    title={t.details}
-                                    className={`flex items-center justify-center w-10 h-10 rounded-xl transition-all ${showInfo ? 'bg-purple-600 text-white shadow-lg' : 'text-white/70 hover:text-white hover:bg-white/10'}`}
-                                >
-                                    <Info className="w-5 h-5" />
-                                </button>
+                                <Tooltip content={t.details}>
+                                    <button
+                                        onClick={() => setShowInfo(!showInfo)}
+                                        className={`flex items-center justify-center w-10 h-10 rounded-xl transition-all ${showInfo ? 'bg-purple-600 text-white shadow-lg' : 'text-white/70 hover:text-white hover:bg-white/10'}`}
+                                    >
+                                        <Info className="w-5 h-5" />
+                                    </button>
+                                </Tooltip>
 
                                 <div className="w-px h-5 bg-white/10 mx-1"></div>
 
-                                <button
-                                    onClick={handleUpscale}
-                                    disabled={isUpscaling || currentImage.isUpscaled}
-                                    title={isUpscaling ? t.upscaling : t.upscale}
-                                    className={`flex items-center justify-center w-10 h-10 rounded-xl transition-all ${currentImage.isUpscaled ? 'text-purple-400 bg-purple-500/10' : 'text-white/70 hover:text-purple-400 hover:bg-white/10'} disabled:opacity-50 disabled:cursor-not-allowed`}
-                                >
-                                    {isUpscaling ? (
-                                        <Loader2 className="w-5 h-5 animate-spin text-purple-400" />
-                                    ) : (
-                                        <Icon4x className="w-5 h-5 transition-colors duration-300" />
-                                    )}
-                                </button>
+                                <Tooltip content={isUpscaling ? t.upscaling : t.upscale}>
+                                    <button
+                                        onClick={handleUpscale}
+                                        disabled={isUpscaling || currentImage.isUpscaled}
+                                        className={`flex items-center justify-center w-10 h-10 rounded-xl transition-all ${currentImage.isUpscaled ? 'text-purple-400 bg-purple-500/10' : 'text-white/70 hover:text-purple-400 hover:bg-white/10'} disabled:opacity-50 disabled:cursor-not-allowed`}
+                                    >
+                                        {isUpscaling ? (
+                                            <Loader2 className="w-5 h-5 animate-spin text-purple-400" />
+                                        ) : (
+                                            <Icon4x className="w-5 h-5 transition-colors duration-300" />
+                                        )}
+                                    </button>
+                                </Tooltip>
 
                                 <div className="w-px h-5 bg-white/10 mx-1"></div>
 
-                                <button 
-                                    onClick={handleToggleBlur}
-                                    title={t.toggleBlur}
-                                    className={`flex items-center justify-center w-10 h-10 rounded-xl transition-all ${currentImage.isBlurred ? 'text-purple-400 bg-white/10' : 'text-white/70 hover:text-white hover:bg-white/10'}`}
-                                >
-                                    {currentImage.isBlurred ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
-                                </button>
+                                <Tooltip content={t.toggleBlur}>
+                                    <button 
+                                        onClick={handleToggleBlur}
+                                        className={`flex items-center justify-center w-10 h-10 rounded-xl transition-all ${currentImage.isBlurred ? 'text-purple-400 bg-white/10' : 'text-white/70 hover:text-white hover:bg-white/10'}`}
+                                    >
+                                        {currentImage.isBlurred ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+                                    </button>
+                                </Tooltip>
 
                                 <div className="w-px h-5 bg-white/10 mx-1"></div>
                                 
-                                <button 
-                                    onClick={() => handleDownload(currentImage.url, `generated-${currentImage.id}`)}
-                                    title={t.download}
-                                    className="flex items-center justify-center w-10 h-10 rounded-xl text-white/70 hover:text-white hover:bg-white/10 transition-all"
-                                >
-                                    <Download className="w-5 h-5" />
-                                </button>
+                                <Tooltip content={t.download}>
+                                    <button 
+                                        onClick={() => handleDownload(currentImage.url, `generated-${currentImage.id}`)}
+                                        className="flex items-center justify-center w-10 h-10 rounded-xl text-white/70 hover:text-white hover:bg-white/10 transition-all"
+                                    >
+                                        <Download className="w-5 h-5" />
+                                    </button>
+                                </Tooltip>
                                 
-                                <button 
-                                    onClick={handleDelete}
-                                    title={t.delete}
-                                    className="flex items-center justify-center w-10 h-10 rounded-xl text-white/70 hover:text-red-400 hover:bg-red-500/10 transition-all"
-                                >
-                                    <Trash2 className="w-5 h-5" />
-                                </button>
+                                <Tooltip content={t.delete}>
+                                    <button 
+                                        onClick={handleDelete}
+                                        className="flex items-center justify-center w-10 h-10 rounded-xl text-white/70 hover:text-red-400 hover:bg-red-500/10 transition-all"
+                                    >
+                                        <Trash2 className="w-5 h-5" />
+                                    </button>
+                                </Tooltip>
                             </div>
                          )}
                      </div>
