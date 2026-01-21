@@ -43,7 +43,7 @@ export const ProviderTab: React.FC<ProviderTabProps> = (props) => {
     };
 
     const renderProviderPanel = (id: string, title: string, dotColorClass: string, children: React.ReactNode) => (
-        <div className="border-b border-white/5 last:border-0">
+        <div key={id} className="border-b border-white/5 last:border-0">
             <div className="flex items-center w-full group">
                 <button
                     onClick={() => setOpenProvider(openProvider === id ? '' : id)}
@@ -186,7 +186,7 @@ export const ProviderTab: React.FC<ProviderTabProps> = (props) => {
                                     <button onClick={() => props.handleDeleteCustomProvider(cp.id)} className="p-2 text-white/40 hover:text-red-400 hover:bg-red-500/10 rounded-lg transition-colors" title={t.delete || "Delete"}><Trash2 className="w-4 h-4" /></button>
                             </div>
                         </div>
-                    ))}
+                    )))}
                     {showAddCustomProvider && renderProviderPanel('add_custom', t.add_provider, 'bg-white/20', (
                         <div className="space-y-4">
                             <div className="space-y-2">

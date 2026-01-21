@@ -430,7 +430,7 @@ export const translations = {
     storage_off: "关闭",
     storage_s3: "S3 存储",
     storage_webdav: "WebDAV",
-    storage_opfs: "本地存储 (OPFS)",
+    storage_opfs: "本地 (OPFS)",
 
     s3_access_key: "访问 ID",
     s3_secret_key: "访问密钥",
