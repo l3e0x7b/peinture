@@ -74,8 +74,9 @@ export const CloudGalleryView: React.FC<CloudGalleryViewProps> = ({ handleUpload
         let isCancelled = false;
 
         const loadImagesSequentially = async () => {
-            // Fix line 104 (approx): Explicitly type the files array as CloudFile[] to ensure iterator is correctly inferred.
-            for (const file of files as CloudFile[]) {
+            // Fix line 104: Explicitly type the files array to ensure iterator is correctly inferred and avoid 'unknown' errors
+            const filesToLoad: CloudFile[] = files;
+            for (const file of filesToLoad) {
                 if (isCancelled) break;
                 if (localUrls[file.key]) continue;
 

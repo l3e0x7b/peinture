@@ -1,18 +1,18 @@
-
 import { GeneratedImage, AspectRatioOption, ModelOption } from "../types";
 import { generateUUID, getSystemPromptContent, FIXED_SYSTEM_PROMPT_SUFFIX } from "./utils";
 import { uploadToGradio } from "./hfService";
 import { API_MODEL_MAP } from "../constants";
 import { useAppStore } from "../store/appStore";
 
-const MS_GENERATE_API_URL = "https://api-inference.modelscope.cn/v1/images/generations";
+const MS_BASE_URL = "https://api-inference.modelscope.cn/";
+const MS_GENERATE_ENDPOINT = `${MS_BASE_URL}v1/images/generations`;
 const MS_CHAT_API_URL = "https://api-inference.modelscope.cn/v1/chat/completions";
 
 // Constants for image upload via HF Space
 const QWEN_EDIT_HF_BASE = "https://linoyts-qwen-image-edit-2509-fast.hf.space";
 const QWEN_EDIT_HF_FILE_PREFIX = "https://linoyts-qwen-image-edit-2509-fast.hf.space/gradio_api/file=";
 
-// --- Token Management System (Refactored to Store) ---
+// --- Token Management System ---
 
 const getNextAvailableToken = (): string | null => {
   const store = useAppStore.getState();
@@ -77,6 +77,44 @@ const runWithMsTokenRetry = async <T>(operation: (token: string) => Promise<T>):
   throw lastError || new Error("error_api_connection");
 };
 
+// --- Polling Helper for Async Tasks ---
+
+const pollMsTask = async (taskId: string, token: string, signal?: AbortSignal): Promise<string[]> => {
+    const statusUrl = `${MS_BASE_URL}v1/tasks/${taskId}`;
+    
+    while (true) {
+        if (signal?.aborted) throw new Error("AbortError");
+
+        const response = await fetch(statusUrl, {
+            headers: {
+                "Content-Type": "application/json",
+                "Authorization": `Bearer ${token}`,
+                "X-ModelScope-Task-Type": "image_generation"
+            },
+            signal
+        });
+
+        if (!response.ok) {
+            throw new Error(`Failed to check task status: ${response.status}`);
+        }
+
+        const data = await response.json();
+        const status = data.task_status;
+
+        if (status === 'SUCCEED') {
+            if (!data.output_images || data.output_images.length === 0) {
+                throw new Error("error_invalid_response");
+            }
+            return data.output_images;
+        } else if (status === 'FAILED') {
+            throw new Error(data.message || "Model Scope generation task failed");
+        }
+
+        // Wait 5 seconds before next poll
+        await new Promise(resolve => setTimeout(resolve, 5000));
+    }
+};
+
 // --- Dimensions Logic ---
 
 const getBaseDimensions = (ratio: AspectRatioOption) => {
@@ -95,7 +133,6 @@ const getDimensions = (ratio: AspectRatioOption, enableHD: boolean): { width: nu
   const base = getBaseDimensions(ratio);
 
   if (enableHD) {
-      // Both Z-Image Turbo and Flux models use 2x multiplier for HD
       return {
           width: Math.round(base.width * 2),
           height: Math.round(base.height * 2)
@@ -121,7 +158,6 @@ export const generateMSImage = async (
   const finalSteps = steps ?? 9; 
   const sizeString = `${width}x${height}`;
 
-  // Get the actual API model string from the map
   const apiModel = API_MODEL_MAP.modelscope[model];
   if (!apiModel) {
       throw new Error(`Model ${model} not supported on Model Scope`);
@@ -141,11 +177,12 @@ export const generateMSImage = async (
           requestBody.guidance = guidanceScale;
       }
 
-      const response = await fetch(MS_GENERATE_API_URL, {
+      const response = await fetch(MS_GENERATE_ENDPOINT, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          "Authorization": `Bearer ${token}`
+          "Authorization": `Bearer ${token}`,
+          "X-ModelScope-Async-Mode": "true"
         },
         body: JSON.stringify(requestBody)
       });
@@ -155,18 +192,19 @@ export const generateMSImage = async (
         throw new Error(errData.message || `Model Scope API Error: ${response.status}`);
       }
 
-      const data = await response.json();
-      
-      const imageUrl = data.images?.[0]?.url;
-
-      if (!imageUrl) {
+      const initData = await response.json();
+      if (!initData.task_id) {
           throw new Error("error_invalid_response");
       }
+
+      // Start Polling
+      const outputImages = await pollMsTask(initData.task_id, token);
+      const imageUrl = outputImages[0];
 
       return {
         id: generateUUID(),
         url: imageUrl,
-        model, // Return the standardized ID
+        model, 
         prompt,
         aspectRatio,
         timestamp: Date.now(),
@@ -193,7 +231,6 @@ export const editImageMS = async (
   signal?: AbortSignal
 ): Promise<GeneratedImage> => {
   // 1. Upload images to Gradio space to get public URLs. 
-  // Per requirements: no token used for upload, anonymous access.
   const uploadedFilenames = await Promise.all(imageBlobs.map(blob => 
     uploadToGradio(QWEN_EDIT_HF_BASE, blob, null, signal)
   ));
@@ -208,15 +245,16 @@ export const editImageMS = async (
         model: apiModel,
         image_url: imageUrls,
         seed: Math.floor(Math.random() * 2147483647),
-        steps: steps, // Steps range 4-28, default 16
-        guidance: guidanceScale // Guidance range 1-10, default 4
+        steps: steps, 
+        guidance: guidanceScale 
       };
 
-      const response = await fetch(MS_GENERATE_API_URL, {
+      const response = await fetch(MS_GENERATE_ENDPOINT, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          "Authorization": `Bearer ${token}`
+          "Authorization": `Bearer ${token}`,
+          "X-ModelScope-Async-Mode": "true"
         },
         body: JSON.stringify(requestBody),
         signal
@@ -227,17 +265,19 @@ export const editImageMS = async (
         throw new Error(errData.message || `Model Scope Image Edit Error: ${response.status}`);
       }
 
-      const data = await response.json();
-      const imageUrl = data.images?.[0]?.url;
-
-      if (!imageUrl) {
-        throw new Error("error_invalid_response");
+      const initData = await response.json();
+      if (!initData.task_id) {
+          throw new Error("error_invalid_response");
       }
+
+      // Start Polling
+      const outputImages = await pollMsTask(initData.task_id, token, signal);
+      const imageUrl = outputImages[0];
 
       return {
         id: generateUUID(),
         url: imageUrl,
-        model: 'qwen-image-edit', // Unified ID
+        model: 'qwen-image-edit', 
         prompt,
         aspectRatio: 'custom',
         timestamp: Date.now(),
@@ -255,7 +295,6 @@ export const editImageMS = async (
 export const optimizePromptMS = async (originalPrompt: string, model: string = 'deepseek-3_2'): Promise<string> => {
   return runWithMsTokenRetry(async (token) => {
     try {
-      // Append the fixed suffix to the user's custom system prompt
       const systemInstruction = getSystemPromptContent() + FIXED_SYSTEM_PROMPT_SUFFIX;
       const apiModel = API_MODEL_MAP.modelscope[model] || model;
       

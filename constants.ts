@@ -26,10 +26,10 @@ export const API_MODEL_MAP: Record<ProviderOption, Record<string, string>> = {
     'wan2_2-i2v': 'Wan2_2-I2V-A14B', // video
   },
   modelscope: {
-    // 'z-image-turbo': 'Tongyi-MAI/Z-Image-Turbo',
-    // 'flux-2': 'black-forest-labs/FLUX.2-dev',
-    // 'flux-1-krea': 'black-forest-labs/FLUX.1-Krea-dev',
-    // 'flux-1': 'MusePublic/489_ckpt_FLUX_1',
+    'z-image-turbo': 'Tongyi-MAI/Z-Image-Turbo',
+    'flux-2': 'black-forest-labs/FLUX.2-dev',
+    'flux-1-krea': 'black-forest-labs/FLUX.1-Krea-dev',
+    'flux-1': 'MusePublic/489_ckpt_FLUX_1',
     'deepseek-3_2': 'deepseek-ai/DeepSeek-V3.2', // text
     'qwen-3': "Qwen/Qwen3-Next-80B-A3B-Instruct", // text
     'qwen-image-edit': 'Qwen/Qwen-Image-Edit-2509', // edit
@@ -65,10 +65,10 @@ export const GITEE_MODEL_OPTIONS = [
 ];
 
 export const MS_MODEL_OPTIONS = [
-  // { value: 'z-image-turbo', label: 'Z-Image Turbo' },
-  // { value: 'flux-2', label: 'FLUX.2' },
-  // { value: 'flux-1-krea', label: 'FLUX.1 Krea' },
-  // { value: 'flux-1', label: 'FLUX.1' }
+  { value: 'z-image-turbo', label: 'Z-Image Turbo' },
+  { value: 'flux-2', label: 'FLUX.2' },
+  { value: 'flux-1-krea', label: 'FLUX.1 Krea' },
+  { value: 'flux-1', label: 'FLUX.1' }
 ];
 
 export const A4F_MODEL_OPTIONS = [

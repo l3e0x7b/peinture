@@ -154,7 +154,7 @@ export const FAQModal: React.FC<FAQModalProps> = ({ isOpen, onClose }) => {
                                 key={index} 
                                 className={`border rounded-xl transition-all duration-300 overflow-hidden ${openIndex === index ? 'bg-white/[0.03] border-purple-500/30 shadow-[0_0_20px_-5px_rgba(168,85,247,0.1)]' : 'bg-transparent border-white/[0.05] hover:bg-white/[0.02] hover:border-white/10'}`}
                             >
-                                <button
+                                <div
                                     onClick={() => toggleAccordion(index)}
                                     className="w-full flex items-center justify-between p-3 md:p-4 text-left select-none group"
                                 >
@@ -169,7 +169,7 @@ export const FAQModal: React.FC<FAQModalProps> = ({ isOpen, onClose }) => {
                                     <div className={`flex-shrink-0 transition-transform duration-500 ease-out ${openIndex === index ? 'rotate-180' : 'rotate-0'}`}>
                                         <ChevronDown className={`w-5 h-5 ${openIndex === index ? 'text-purple-400' : 'text-white/30 group-hover:text-white/50'}`} />
                                     </div>
-                                </button>
+                                </div>
                                 
                                 <div 
                                     className={`grid transition-[grid-template-rows] duration-500 cubic-bezier(0.4, 0, 0.2, 1) ${

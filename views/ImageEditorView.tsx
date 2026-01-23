@@ -262,11 +262,11 @@ export const ImageEditorView: React.FC<ImageEditorViewProps> = ({ onOpenSettings
         if (!useProxyLoading) return;
 
         let isCancelled = false;
-        const visibleFiles = galleryFiles.slice(0, galleryLimit);
+        // Fix line 101: Explicitly type the visibleFiles array to ensure iterator is correctly inferred and avoid 'unknown' errors
+        const visibleFiles: CloudFile[] = galleryFiles.slice(0, galleryLimit);
 
         const loadImagesSequentially = async () => {
-            // Fix line 102: Explicitly type the visibleFiles array as CloudFile[] to ensure iterator is correctly inferred.
-            for (const file of visibleFiles as CloudFile[]) {
+            for (const file of visibleFiles) {
                 if (isCancelled) break;
                 // Skip if already loaded
                 if (galleryLocalUrls[file.key]) continue;
