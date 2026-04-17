@@ -9,6 +9,7 @@ import {
   Check as LucideCheck,
   Loader2 as LucideLoader2,
   Film as LucideFilm,
+  Maximize2,
   CloudUpload,
   Timer,
   Copy,
@@ -55,6 +56,7 @@ interface ImageToolbarProps {
   imageDimensions: { width: number; height: number } | null;
   copiedPrompt: boolean;
   handleCopyPrompt: () => void;
+  handleOpenViewer: () => void;
 }
 
 export const ImageToolbar: React.FC<ImageToolbarProps> = ({
@@ -80,6 +82,7 @@ export const ImageToolbar: React.FC<ImageToolbarProps> = ({
   imageDimensions,
   copiedPrompt,
   handleCopyPrompt,
+  handleOpenViewer,
 }) => {
   const { language } = useSettingsStore();
   const t = translations[language];
@@ -111,6 +114,7 @@ export const ImageToolbar: React.FC<ImageToolbarProps> = ({
   const showLiveButton = !isLiveMode; // Only hide if actively viewing the video (replaced by 'Image' button in PreviewStage)
   const showUpscaleButton = !isLiveMode; // Upscale is available unless in video mode
   const showUploadButton = isStorageEnabled;
+  const viewLabel = isLiveMode ? t.viewVideo : t.viewOriginal;
 
   const isBusy = isLiveGenerating || isGeneratingVideoPrompt;
   // Disable live button if busy (generating) OR if already in Live Mode (viewing video)
@@ -326,6 +330,19 @@ export const ImageToolbar: React.FC<ImageToolbarProps> = ({
                   className={`flex items-center justify-center w-10 h-10 rounded-xl transition-all ${showInfo ? "bg-purple-600 text-white shadow-lg" : "text-white/70 hover:text-white hover:bg-white/10"}`}
                 >
                   <LucideInfo className="w-5 h-5" />
+                </button>
+              </Tooltip>
+
+              <div className="w-px h-5 bg-white/10 mx-1"></div>
+
+              <Tooltip content={viewLabel}>
+                <button
+                  onClick={handleOpenViewer}
+                  className="flex items-center gap-2 px-3 h-10 rounded-xl text-white/70 hover:text-white hover:bg-white/10 transition-all"
+                  aria-label={viewLabel}
+                >
+                  <Maximize2 className="w-5 h-5" />
+                  <span className="text-xs font-medium">{viewLabel}</span>
                 </button>
               </Tooltip>
 

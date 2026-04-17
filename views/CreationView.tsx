@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { Sparkles, Loader2, RotateCcw } from "lucide-react";
 import { toast } from "sonner";
 import { PromptInput } from "../components/PromptInput";
@@ -6,6 +6,7 @@ import { ControlPanel } from "../components/ControlPanel";
 import { PreviewStage } from "../components/PreviewStage";
 import { ImageToolbar } from "../components/ImageToolbar";
 import { HistoryGallery } from "../components/HistoryGallery";
+import { MediaViewerModal } from "../components/MediaViewerModal";
 import { Tooltip } from "../components/Tooltip";
 import { useSettingsStore } from "../store/settingsStore";
 import { useUIStore, useCurrentImage } from "../store/uiStore";
@@ -32,6 +33,7 @@ export const CreationView: React.FC = () => {
   const currentImage = useCurrentImage();
 
   const t = translations[language];
+  const [isViewerOpen, setIsViewerOpen] = useState(false);
 
   // Business logic hooks
   const {
@@ -172,12 +174,21 @@ export const CreationView: React.FC = () => {
               imageDimensions={imageDimensions}
               copiedPrompt={copiedPrompt}
               handleCopyPrompt={handleCopyPrompt}
+              handleOpenViewer={() => setIsViewerOpen(true)}
             />
           )}
         </div>
 
         <HistoryGallery onSelect={handleHistorySelect} />
       </div>
+
+      {currentImage && isViewerOpen && (
+        <MediaViewerModal
+          image={currentImage}
+          isLiveMode={Boolean(isLiveMode && currentImage.videoUrl)}
+          onClose={() => setIsViewerOpen(false)}
+        />
+      )}
     </main>
   );
 };

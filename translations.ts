@@ -322,6 +322,8 @@ export const translations = {
     toggle_nsfw: "Toggle NSFW",
     mark_nsfw: "Mark as NSFW",
     unmark_nsfw: "Unmark NSFW",
+    viewOriginal: "View Original",
+    viewVideo: "View Video",
   },
   zh: {
     appTitle: "派奇智图",
@@ -643,5 +645,7 @@ export const translations = {
     toggle_nsfw: "标记为 NSFW",
     mark_nsfw: "标记为 NSFW",
     unmark_nsfw: "取消 NSFW 标记",
+    viewOriginal: "查看原图",
+    viewVideo: "查看视频",
   }
 };
