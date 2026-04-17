@@ -338,11 +338,10 @@ export const ImageToolbar: React.FC<ImageToolbarProps> = ({
               <Tooltip content={viewLabel}>
                 <button
                   onClick={handleOpenViewer}
-                  className="flex items-center gap-2 px-3 h-10 rounded-xl text-white/70 hover:text-white hover:bg-white/10 transition-all"
+                  className="flex items-center justify-center w-10 h-10 rounded-xl text-white/70 hover:text-white hover:bg-white/10 transition-all"
                   aria-label={viewLabel}
                 >
                   <Maximize2 className="w-5 h-5" />
-                  <span className="text-xs font-medium">{viewLabel}</span>
                 </button>
               </Tooltip>
 
