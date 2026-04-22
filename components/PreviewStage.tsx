@@ -55,12 +55,12 @@ export const PreviewStage: React.FC<PreviewStageProps> = ({
     if (currentImage?.id !== displayImage?.id) {
       if (!displayImage) {
         // Initial load or first generation: no fade out needed
+        // eslint-disable-next-line react-hooks/set-state-in-effect
         setDisplayImage(currentImage);
       } else {
         // 1. Start Fade Out
         if (!isTransitioningRef.current) {
           isTransitioningRef.current = true;
-          // eslint-disable-next-line react-hooks/set-state-in-effect
           setIsTransitioning(true);
         }
 

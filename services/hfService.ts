@@ -12,7 +12,7 @@ import { API_MODEL_MAP } from "../constants";
 
 import { runWithTokenRetry } from "./tokenRetry";
 
-const ZIMAGE_BASE_API_URL = "https://rahul7star-z-image-turbo.hf.space";
+const ZIMAGE_BASE_API_URL = "https://mrfakename-z-image-turbo.hf.space";
 const ZIMAGE_MODEL_BASE_API_URL = "https://mrfakename-z-image.hf.space";
 const QWEN_IMAGE_BASE_API_URL = "https://mcp-tools-qwen-image-fast.hf.space";
 const OVIS_IMAGE_BASE_API_URL = "https://aidc-ai-ovis-image-7b.hf.space";
@@ -283,8 +283,8 @@ const generateZImage = async (
     try {
       const output: any = await runGradioTask(
         ZIMAGE_BASE_API_URL,
-        [prompt, height, width, steps, seed, false, 1],
-        1, // fn_index
+        [prompt, height, width, steps, seed, false],
+        2, // fn_index
         16, // trigger_id
         token,
       );
