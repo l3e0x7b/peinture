@@ -30,7 +30,11 @@ const markTokenExhausted = (providerId: ProviderId, token: string): void => {
 // --- Provider-specific Quota Error Patterns ---
 
 const QUOTA_ERROR_PATTERNS: Record<ProviderId, string[]> = {
-  huggingface: ["429", "You have exceeded your free GPU quota"],
+  huggingface: [
+    "429",
+    "You have exceeded your free GPU quota",
+    "error_quota_exhausted",
+  ],
   gitee: ["429", "quota", "credit"],
   modelscope: ["429", "quota", "credit", "Arrearage", "Bill"],
   a4f: ["429", "insufficient_quota", "quota"],
@@ -63,10 +67,14 @@ const TOKEN_OPTIONAL_PROVIDERS: ProviderId[] = ["huggingface"];
 
 function isQuotaError(error: any, providerId: ProviderId): boolean {
   const patterns = QUOTA_ERROR_PATTERNS[providerId] || [];
+  const message = error?.message || "";
 
-  if (error.status === 429) return true;
+  if (providerId === "huggingface" && message === "error_quota_exhausted") {
+    return true;
+  }
 
-  const message = error.message || "";
+  if (error?.status === 429) return true;
+
   return patterns.some((pattern) => message.includes(pattern));
 }
 

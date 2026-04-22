@@ -1,4 +1,4 @@
-import { useState, useCallback } from "react";
+import { useState, useCallback, useMemo } from "react";
 import { ProviderId } from "../types";
 import { useConfigStore } from "../store/configStore";
 
@@ -11,25 +11,9 @@ export const useTokensForm = () => {
 
   // Token state
   const [token, setToken] = useState("");
-  const [stats, setStats] = useState({ total: 0, active: 0, exhausted: 0 });
   const [giteeToken, setGiteeToken] = useState("");
-  const [giteeStats, setGiteeStats] = useState({
-    total: 0,
-    active: 0,
-    exhausted: 0,
-  });
   const [msToken, setMsToken] = useState("");
-  const [msStats, setMsStats] = useState({
-    total: 0,
-    active: 0,
-    exhausted: 0,
-  });
   const [a4fToken, setA4FToken] = useState("");
-  const [a4fStats, setA4FStats] = useState({
-    total: 0,
-    active: 0,
-    exhausted: 0,
-  });
 
   const calculateStats = useCallback(
     (tokensList: string[], providerId: ProviderId) => {
@@ -48,42 +32,45 @@ export const useTokensForm = () => {
   const initializeTokens = useCallback(() => {
     const hfTokens = tokens.huggingface || [];
     setToken(hfTokens.join(","));
-    setStats(calculateStats(hfTokens, "huggingface"));
 
     const gTokens = tokens.gitee || [];
     setGiteeToken(gTokens.join(","));
-    setGiteeStats(calculateStats(gTokens, "gitee"));
 
     const mTokens = tokens.modelscope || [];
     setMsToken(mTokens.join(","));
-    setMsStats(calculateStats(mTokens, "modelscope"));
 
     const aTokens = tokens.a4f || [];
     setA4FToken(aTokens.join(","));
-    setA4FStats(calculateStats(aTokens, "a4f"));
-  }, [tokens, calculateStats]);
+  }, [tokens]);
 
   const updateToken = (type: ProviderId, value: string) => {
-    const list = value
-      .split(",")
-      .map((t) => t.trim())
-      .filter((t) => t.length > 0);
-    const newStats = calculateStats(list, type);
-
     if (type === "huggingface") {
       setToken(value);
-      setStats(newStats);
     } else if (type === "gitee") {
       setGiteeToken(value);
-      setGiteeStats(newStats);
     } else if (type === "modelscope") {
       setMsToken(value);
-      setMsStats(newStats);
     } else if (type === "a4f") {
       setA4FToken(value);
-      setA4FStats(newStats);
     }
   };
+
+  const stats = useMemo(
+    () => calculateStats(tokens.huggingface || [], "huggingface"),
+    [calculateStats, tokens.huggingface],
+  );
+  const giteeStats = useMemo(
+    () => calculateStats(tokens.gitee || [], "gitee"),
+    [calculateStats, tokens.gitee],
+  );
+  const msStats = useMemo(
+    () => calculateStats(tokens.modelscope || [], "modelscope"),
+    [calculateStats, tokens.modelscope],
+  );
+  const a4fStats = useMemo(
+    () => calculateStats(tokens.a4f || [], "a4f"),
+    [calculateStats, tokens.a4f],
+  );
 
   return {
     token,
