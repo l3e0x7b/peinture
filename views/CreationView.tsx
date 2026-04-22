@@ -17,7 +17,7 @@ import { useImageActions } from "../hooks/useImageActions";
 
 export const CreationView: React.FC = () => {
   const { language, provider } = useSettingsStore();
-  const { cloudHistory } = useDataStore();
+  const { history, cloudHistory } = useDataStore();
   const {
     prompt,
     isLoading,
@@ -88,6 +88,22 @@ export const CreationView: React.FC = () => {
       );
     }
   }, [currentImage, cloudHistory, isLiveMode]);
+
+  const handleViewerPrev = () => {
+    if (!currentImage || history.length <= 1) return;
+    const currentIndex = history.findIndex((img) => img.id === currentImage.id);
+    if (currentIndex === -1) return;
+    const prevIndex = (currentIndex - 1 + history.length) % history.length;
+    handleHistorySelect(history[prevIndex]);
+  };
+
+  const handleViewerNext = () => {
+    if (!currentImage || history.length <= 1) return;
+    const currentIndex = history.findIndex((img) => img.id === currentImage.id);
+    if (currentIndex === -1) return;
+    const nextIndex = (currentIndex + 1) % history.length;
+    handleHistorySelect(history[nextIndex]);
+  };
 
   return (
     <main className="w-full max-w-7xl flex-1 flex flex-col-reverse md:items-stretch md:mx-auto md:flex-row gap-4 md:gap-6 px-4 md:px-8 pb-4 md:pb-8 pt-4 md:pt-6">
@@ -186,6 +202,9 @@ export const CreationView: React.FC = () => {
         <MediaViewerModal
           image={currentImage}
           isLiveMode={Boolean(isLiveMode && currentImage.videoUrl)}
+          canNavigate={history.length > 1}
+          onPrev={handleViewerPrev}
+          onNext={handleViewerNext}
           onClose={() => setIsViewerOpen(false)}
         />
       )}

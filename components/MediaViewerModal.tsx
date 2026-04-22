@@ -1,23 +1,35 @@
 import React, { useEffect } from "react";
 import { TransformWrapper, TransformComponent } from "react-zoom-pan-pinch";
-import { X } from "lucide-react";
+import { ChevronLeft, ChevronRight, X } from "lucide-react";
 import { GeneratedImage } from "../types";
 
 interface MediaViewerModalProps {
   image: GeneratedImage;
   isLiveMode: boolean;
+  canNavigate: boolean;
+  onPrev: () => void;
+  onNext: () => void;
   onClose: () => void;
 }
 
 export const MediaViewerModal: React.FC<MediaViewerModalProps> = ({
   image,
   isLiveMode,
+  canNavigate,
+  onPrev,
+  onNext,
   onClose,
 }) => {
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
       if (event.key === "Escape") {
         onClose();
+      } else if (event.key === "ArrowLeft" && canNavigate) {
+        event.preventDefault();
+        onPrev();
+      } else if (event.key === "ArrowRight" && canNavigate) {
+        event.preventDefault();
+        onNext();
       }
     };
 
@@ -29,7 +41,7 @@ export const MediaViewerModal: React.FC<MediaViewerModalProps> = ({
       document.body.style.overflow = previousOverflow;
       window.removeEventListener("keydown", handleKeyDown);
     };
-  }, [onClose]);
+  }, [canNavigate, onClose, onPrev, onNext]);
 
   const isVideo = isLiveMode && Boolean(image.videoUrl);
 
@@ -47,6 +59,26 @@ export const MediaViewerModal: React.FC<MediaViewerModalProps> = ({
         aria-label="Close viewer"
       >
         <X className="w-5 h-5" />
+      </button>
+
+      <button
+        type="button"
+        onClick={onPrev}
+        disabled={!canNavigate}
+        className="absolute left-4 top-1/2 -translate-y-1/2 z-[130] flex items-center justify-center w-12 h-12 rounded-full bg-black/55 backdrop-blur-md border border-white/25 shadow-[0_8px_24px_rgba(0,0,0,0.45)] text-white/95 hover:text-white hover:bg-black/70 hover:border-white/40 transition-all disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:text-white/95 disabled:hover:bg-black/55 disabled:hover:border-white/25"
+        aria-label="Previous media"
+      >
+        <ChevronLeft className="w-5 h-5" />
+      </button>
+
+      <button
+        type="button"
+        onClick={onNext}
+        disabled={!canNavigate}
+        className="absolute right-4 top-1/2 -translate-y-1/2 z-[130] flex items-center justify-center w-12 h-12 rounded-full bg-black/55 backdrop-blur-md border border-white/25 shadow-[0_8px_24px_rgba(0,0,0,0.45)] text-white/95 hover:text-white hover:bg-black/70 hover:border-white/40 transition-all disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:text-white/95 disabled:hover:bg-black/55 disabled:hover:border-white/25"
+        aria-label="Next media"
+      >
+        <ChevronRight className="w-5 h-5" />
       </button>
 
       <div
