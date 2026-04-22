@@ -154,7 +154,7 @@ export const PromptInput: React.FC<PromptInputProps> = ({ onOptimize }) => {
         value={prompt}
         onChange={(e) => setPrompt(e.target.value)}
         disabled={isOptimizing || isTranslating}
-        className="form-input w-full min-w-0 resize-y overflow-y-auto rounded-lg text-white/90 focus:outline-0 focus:ring-2 focus:ring-purple-500/50 border border-white/10 bg-white/5 focus:border-purple-500 min-h-32 max-h-[420px] placeholder:text-white/30 p-4 text-base font-normal leading-normal transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+        className="form-input w-full min-w-0 resize-y overflow-y-auto rounded-lg text-white/90 focus:outline-0 focus:ring-2 focus:ring-purple-500/50 border border-white/10 bg-white/5 focus:border-purple-500 min-h-32 max-h-[420px] placeholder:text-white/30 p-4 text-base font-normal leading-normal transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
         placeholder={t.promptPlaceholder}
       />
     </div>
