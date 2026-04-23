@@ -54,7 +54,10 @@ export const MediaViewerModal: React.FC<MediaViewerModalProps> = ({
     >
       <button
         type="button"
-        onClick={onClose}
+        onClick={(event) => {
+          event.stopPropagation();
+          onClose();
+        }}
         className="absolute top-4 right-4 z-[130] flex items-center justify-center w-11 h-11 rounded-full bg-white/10 border border-white/10 text-white/80 hover:text-white hover:bg-white/15 transition-all"
         aria-label="Close viewer"
       >
@@ -63,9 +66,12 @@ export const MediaViewerModal: React.FC<MediaViewerModalProps> = ({
 
       <button
         type="button"
-        onClick={onPrev}
+        onClick={(event) => {
+          event.stopPropagation();
+          onPrev();
+        }}
         disabled={!canNavigate}
-        className="absolute left-4 top-1/2 -translate-y-1/2 z-[130] flex items-center justify-center w-12 h-12 rounded-full bg-black/55 backdrop-blur-md border border-white/25 shadow-[0_8px_24px_rgba(0,0,0,0.45)] text-white/95 hover:text-white hover:bg-black/70 hover:border-white/40 transition-all disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:text-white/95 disabled:hover:bg-black/55 disabled:hover:border-white/25"
+        className="absolute left-4 top-1/2 -translate-y-1/2 z-[130] flex items-center justify-center w-11 h-11 rounded-full bg-white/10 border border-white/10 text-white/80 hover:text-white hover:bg-white/15 transition-all disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:text-white/80 disabled:hover:bg-white/10"
         aria-label="Previous media"
       >
         <ChevronLeft className="w-5 h-5" />
@@ -73,9 +79,12 @@ export const MediaViewerModal: React.FC<MediaViewerModalProps> = ({
 
       <button
         type="button"
-        onClick={onNext}
+        onClick={(event) => {
+          event.stopPropagation();
+          onNext();
+        }}
         disabled={!canNavigate}
-        className="absolute right-4 top-1/2 -translate-y-1/2 z-[130] flex items-center justify-center w-12 h-12 rounded-full bg-black/55 backdrop-blur-md border border-white/25 shadow-[0_8px_24px_rgba(0,0,0,0.45)] text-white/95 hover:text-white hover:bg-black/70 hover:border-white/40 transition-all disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:text-white/95 disabled:hover:bg-black/55 disabled:hover:border-white/25"
+        className="absolute right-4 top-1/2 -translate-y-1/2 z-[130] flex items-center justify-center w-11 h-11 rounded-full bg-white/10 border border-white/10 text-white/80 hover:text-white hover:bg-white/15 transition-all disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:text-white/80 disabled:hover:bg-white/10"
         aria-label="Next media"
       >
         <ChevronRight className="w-5 h-5" />
