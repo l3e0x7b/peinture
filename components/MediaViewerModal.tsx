@@ -48,6 +48,7 @@ export const MediaViewerModal: React.FC<MediaViewerModalProps> = ({
   return (
     <div
       className="fixed inset-0 z-[120] bg-black/90 backdrop-blur-xl animate-in fade-in duration-200"
+      style={{ height: "100dvh" }}
       onClick={onClose}
       role="dialog"
       aria-modal="true"
@@ -58,7 +59,7 @@ export const MediaViewerModal: React.FC<MediaViewerModalProps> = ({
           event.stopPropagation();
           onClose();
         }}
-        className="absolute top-4 right-4 z-[130] flex items-center justify-center w-11 h-11 rounded-full bg-white/10 border border-white/10 text-white/80 hover:text-white hover:bg-white/15 transition-all"
+        className="absolute top-4 right-4 z-[130] flex items-center justify-center w-11 h-11 rounded-full bg-black/60 backdrop-blur-md border border-white/30 shadow-[0_8px_24px_rgba(0,0,0,0.45)] text-white hover:text-white hover:bg-black/75 hover:border-white/45 transition-all"
         aria-label="Close viewer"
       >
         <X className="w-5 h-5" />
@@ -71,7 +72,7 @@ export const MediaViewerModal: React.FC<MediaViewerModalProps> = ({
           onPrev();
         }}
         disabled={!canNavigate}
-        className="absolute left-4 top-1/2 -translate-y-1/2 z-[130] flex items-center justify-center w-11 h-11 rounded-full bg-white/10 border border-white/10 text-white/80 hover:text-white hover:bg-white/15 transition-all disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:text-white/80 disabled:hover:bg-white/10"
+        className="absolute left-4 top-1/2 -translate-y-1/2 z-[130] flex items-center justify-center w-11 h-11 rounded-full bg-black/60 backdrop-blur-md border border-white/30 shadow-[0_8px_24px_rgba(0,0,0,0.45)] text-white hover:text-white hover:bg-black/75 hover:border-white/45 transition-all disabled:opacity-55 disabled:cursor-not-allowed disabled:hover:bg-black/60 disabled:hover:border-white/30"
         aria-label="Previous media"
       >
         <ChevronLeft className="w-5 h-5" />
@@ -84,14 +85,18 @@ export const MediaViewerModal: React.FC<MediaViewerModalProps> = ({
           onNext();
         }}
         disabled={!canNavigate}
-        className="absolute right-4 top-1/2 -translate-y-1/2 z-[130] flex items-center justify-center w-11 h-11 rounded-full bg-white/10 border border-white/10 text-white/80 hover:text-white hover:bg-white/15 transition-all disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:text-white/80 disabled:hover:bg-white/10"
+        className="absolute right-4 top-1/2 -translate-y-1/2 z-[130] flex items-center justify-center w-11 h-11 rounded-full bg-black/60 backdrop-blur-md border border-white/30 shadow-[0_8px_24px_rgba(0,0,0,0.45)] text-white hover:text-white hover:bg-black/75 hover:border-white/45 transition-all disabled:opacity-55 disabled:cursor-not-allowed disabled:hover:bg-black/60 disabled:hover:border-white/30"
         aria-label="Next media"
       >
         <ChevronRight className="w-5 h-5" />
       </button>
 
       <div
-        className="w-full h-full p-4 md:p-6"
+        className="w-full h-full flex items-center justify-center px-4 md:px-6"
+        style={{
+          paddingTop: "max(1rem, calc(env(safe-area-inset-top) + 1rem))",
+          paddingBottom: "max(1rem, calc(env(safe-area-inset-bottom) + 1rem))",
+        }}
         onClick={(event) => event.stopPropagation()}
       >
         {isVideo ? (
@@ -105,31 +110,33 @@ export const MediaViewerModal: React.FC<MediaViewerModalProps> = ({
             />
           </div>
         ) : (
-          <TransformWrapper
-            initialScale={1}
-            minScale={1}
-            maxScale={8}
-            centerOnInit={true}
-            wheel={{ step: 0.5 }}
-          >
-            <TransformComponent
-              wrapperStyle={{ width: "100%", height: "100%" }}
-              contentStyle={{
-                width: "100%",
-                height: "100%",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-              }}
+          <div className="w-full h-full flex items-center justify-center">
+            <TransformWrapper
+              initialScale={1}
+              minScale={1}
+              maxScale={8}
+              centerOnInit={true}
+              wheel={{ step: 0.5 }}
             >
-              <img
-                src={image.url}
-                alt={image.prompt}
-                className={`max-w-full max-h-full object-contain shadow-2xl cursor-grab active:cursor-grabbing transition-all duration-300 ${image.isBlurred ? "blur-lg scale-105" : ""}`}
-                onContextMenu={(event) => event.preventDefault()}
-              />
-            </TransformComponent>
-          </TransformWrapper>
+              <TransformComponent
+                wrapperStyle={{ width: "100%", height: "100%" }}
+                contentStyle={{
+                  width: "100%",
+                  height: "100%",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                }}
+              >
+                <img
+                  src={image.url}
+                  alt={image.prompt}
+                  className={`max-w-full max-h-full object-contain shadow-2xl cursor-grab active:cursor-grabbing transition-all duration-300 ${image.isBlurred ? "blur-lg scale-105" : ""}`}
+                  onContextMenu={(event) => event.preventDefault()}
+                />
+              </TransformComponent>
+            </TransformWrapper>
+          </div>
         )}
       </div>
     </div>
