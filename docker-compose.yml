@@ -1,0 +1,9 @@
+version: "3.8"
+
+services:
+  peinture:
+    build: .
+    container_name: peinture
+    ports:
+      - "80:80"
+    restart: unless-stopped

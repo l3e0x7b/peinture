@@ -22,6 +22,7 @@ export interface GeneratedImage {
     videoStatus?: 'generating' | 'success' | 'failed';
     videoError?: string;
     videoProvider?: ProviderOption;
+    videoTimestamp?: number; // Timestamp when video generation started
     videoNextPollTime?: number; // Timestamp for next poll attempt
     videoFileName?: string; // Local filename in OPFS tmp for the video
 }
@@ -76,9 +77,9 @@ export type ModelOption =
     | "imagen-4"
     | string; // Allow custom model strings
 
-export type ProviderOption = "huggingface" | "gitee" | "modelscope" | "a4f" | string;
+export type ProviderOption = "huggingface" | "gitee" | "modelscope" | "a4f" | "openai" | "google" | string;
 
-export type ProviderId = 'huggingface' | 'gitee' | 'modelscope' | 'a4f';
+export type ProviderId = 'huggingface' | 'gitee' | 'modelscope' | 'a4f' | 'openai' | 'google';
 
 export interface TokenStatus {
     date: string;

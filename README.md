@@ -16,16 +16,16 @@ A sleek, dark-themed AI image generator built with React, TypeScript, and Tailwi
 
 - **Multi-Provider Architecture**: Seamlessly switch between **Hugging Face**, **Gitee AI**, **Model Scope**, and **A4F**. You can also add **Custom OpenAI-compatible Providers** to extend functionality infinitely.
 - **Diverse Model Ecosystem**: Access a wide range of models including:
-  - **Generation**: `Z-Image Turbo`, `Qwen Image`, `Ovis Image`, `FLUX.1 Schnell/Dev/Krea`, `FLUX.2`.
-  - **Text/Optimization**: `OpenAI 4o-mini`, `DeepSeek V3/R1`, `Qwen 3`, `Gemini 2.5 Flash Lite`.
+  - **Generation**: `GPT Image 2`, `Nano Banana 2`, `Z-Image Turbo`, `Qwen Image`, `Ovis Image`, `FLUX.1 Schnell/Dev/Krea`, `FLUX.2`.
+  - **Text/Optimization**: `OpenAI 5.4`, `Gemini 3.1 Pro`, `DeepSeek V4`, `Qwen 3`.
 - **Professional Image Editor**: Modify existing images with precision using the **Qwen-Image-Edit** model. Features include Brush/Rectangle selection, reference image support (up to 3), and AI-assisted prompt optimization.
 - **Live Motion (Wan 2.2)**: Transform static images into dynamic 5-second cinematic videos using the advanced **Wan 2.2** model (Supported on Hugging Face & Gitee AI).
-- **Flexible Storage System**: 
+- **Flexible Storage System**:
   - **Local (OPFS)**: High-performance, persistent local storage within the browser.
   - **Cloud**: Connect **S3-compatible storage** (AWS, R2, MinIO) or **WebDAV** to sync your creations across devices.
 - **Prompt Engineering**: Integrated AI prompt enhancer that expands simple ideas into detailed descriptions. Includes **Auto Translation** for optimizing prompts for English-centric models like FLUX.
 - **Advanced Controls**: Fine-tune your creations with adjustable **inference steps**, **seed control**, **guidance scale**, and **HD Mode** (4x Upscaling).
-- **Service Modes**: 
+- **Service Modes**:
   - **Local**: Runs entirely in the browser using public APIs.
   - **Server**: Connects to a private backend for proxying requests.
   - **Hydration**: Hybrid mode combining local logic with server capabilities.
@@ -51,17 +51,20 @@ A sleek, dark-themed AI image generator built with React, TypeScript, and Tailwi
 ### Installation
 
 1. Clone the repository:
+
    ```bash
    git clone https://github.com/Amery2010/peinture.git
    cd peinture
    ```
 
 2. Install dependencies:
+
    ```bash
    npm install
    ```
 
 3. Start the development server:
+
    ```bash
    npm run dev
    ```
@@ -77,11 +80,13 @@ This project is a static Single Page Application (SPA), making it easy to deploy
 Vercel is optimized for frontend frameworks and requires zero configuration.
 
 1. Install Vercel CLI:
+
    ```bash
    npm i -g vercel
    ```
 
 2. Run the deploy command from the project root:
+
    ```bash
    vercel
    ```
@@ -89,6 +94,7 @@ Vercel is optimized for frontend frameworks and requires zero configuration.
 3. Follow the prompts. Vercel will automatically detect Vite and set the build command to `npm run build` and the output directory to `dist`.
 
 **Alternatively, via the Vercel Dashboard:**
+
 1. Push your code to GitHub.
 2. Import the repository in Vercel.
 3. Keep the default "Framework Preset" as `Vite`.
@@ -112,6 +118,7 @@ Cloudflare Pages is the best way to host static assets on the Cloudflare network
 To host on any standard web server or CDN:
 
 1. Build the project locally:
+
    ```bash
    npm run build
    ```
@@ -122,36 +129,80 @@ To host on any standard web server or CDN:
 
 4. **Important for SPAs**: Ensure your server is configured to redirect all 404 requests to `index.html` so that React Router (if added in the future) or client-side logic handles the routing.
 
+### Option 4: Docker & Docker Compose
+
+We provide an official, lightweight Docker image to easily deploy Peinture on your own server. The built-in Nginx securely handles SPA routing and image CORS proxying.
+
+**Using Docker Run:**
+
+```bash
+docker run -d -p 80:80 --name peinture ghcr.io/amery2010/peinture:latest
+```
+
+**Using Docker Compose:**
+
+Create a `docker-compose.yml` file:
+
+```yaml
+version: "3.8"
+
+services:
+  peinture:
+    image: ghcr.io/amery2010/peinture:latest
+    container_name: peinture-app
+    ports:
+      - "80:80"
+    restart: unless-stopped
+```
+
+Then start the service:
+
+```bash
+docker-compose up -d
+```
+
+Your app will be available at `http://localhost`.
+
 ## ⚙️ Configuration
 
 You can configure API tokens in the app's **Settings** menu.
 
 ### Hugging Face Token (Optional)
+
 The application works out-of-the-box using public quotas. However, for heavy usage or during peak times, providing your own token is recommended.
+
 1. Get a token from [Hugging Face Settings](https://huggingface.co/settings/tokens).
 2. Paste it into the **Hugging Face Token** field in Settings.
 
 ### Gitee AI Token (Required for Gitee)
+
 To use the Gitee AI provider, you must provide an API token.
+
 1. Get a token from [Gitee AI Dashboard](https://ai.gitee.com/dashboard/settings/tokens).
 2. Paste it into the **Gitee AI Token** field in Settings.
 3. Gitee AI provides a daily free quota for generated images.
 
 ### Model Scope Token (Required for Model Scope)
+
 To use the Model Scope provider, you must provide an API token.
+
 1. Get a token from [Model Scope Dashboard](https://modelscope.cn/my/myaccesstoken).
 2. Paste it into the **Model Scope Token** field in Settings.
 
 ### A4F Token (Required for Gitee)
+
 To use the A4F provider, you must provide an API token.
+
 1. Get a token from [A4F Dashboard](https://www.a4f.co/api-keys).
 2. Paste it into the **A4F Token** field in Settings.
 3. A4F provides a daily free quota for generated images.
 
-*Tokens are stored securely in your browser's `localStorage` and are strictly used to authenticate requests to the respective Inference endpoints.*
+_Tokens are stored securely in your browser's `localStorage` and are strictly used to authenticate requests to the respective Inference endpoints._
 
 ### Cloud Storage (Optional)
+
 To save your creations to the cloud:
+
 1. Go to **Settings > Storage**.
 2. Select **S3 Storage** or **WebDAV**.
 3. Enter your credentials (e.g., Access Key/Secret Key for S3, URL/User/Pass for WebDAV).
@@ -241,6 +292,12 @@ Contributions are welcome! Please feel free to submit a Pull Request.
 3. Commit your changes (`git commit -m 'Add some AmazingFeature'`)
 4. Push to the branch (`git push origin feature/AmazingFeature`)
 5. Open a Pull Request
+
+## Community Support
+
+You can ask questions or share your thoughts and needs regarding Peinture in these communities.
+
+[LinuxDo](https://linux.do)
 
 ## 📄 License
 

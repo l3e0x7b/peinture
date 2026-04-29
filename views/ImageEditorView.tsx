@@ -37,6 +37,18 @@ import { useEditorGeneration } from "../hooks/useEditorGeneration";
 import { EditorToolbar } from "../components/editor/EditorToolbar";
 import { EditorBottomBar } from "../components/editor/EditorBottomBar";
 
+const TimerDisplay = () => {
+  const [elapsed, setElapsed] = useState(0);
+  useEffect(() => {
+    const start = Date.now();
+    const interval = setInterval(() => {
+      setElapsed((Date.now() - start) / 1000);
+    }, 100);
+    return () => clearInterval(interval);
+  }, []);
+  return <p className="mt-2 font-mono text-purple-300 text-lg">{elapsed.toFixed(1)}s</p>;
+};
+
 interface ImageEditorViewProps {
   onOpenSettings: () => void;
   handleUploadToS3?: (
@@ -145,7 +157,6 @@ export const ImageEditorView: React.FC<ImageEditorViewProps> = ({
     isOptimizing,
     isDownloading,
     isUploading,
-    elapsedTime,
     generatedResult,
     setGeneratedResult,
     handleGenerate,
@@ -493,9 +504,7 @@ export const ImageEditorView: React.FC<ImageEditorViewProps> = ({
             <p className="mt-8 text-white/80 font-medium animate-pulse text-lg">
               {t.dreaming}
             </p>
-            <p className="mt-2 font-mono text-purple-300 text-lg">
-              {elapsedTime.toFixed(1)}s
-            </p>
+            <TimerDisplay />
           </div>
         )}
 

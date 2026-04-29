@@ -18,6 +18,8 @@ import {
   editImageCustom,
   optimizePromptCustom,
 } from "../services/customService";
+import { generateOpenAIImage } from "../services/openaiService";
+import { generateGoogleImage } from "../services/googleService";
 import { optimizeEditPrompt } from "../services/utils";
 import { saveTempFileToOPFS } from "../services/storageService";
 
@@ -39,24 +41,8 @@ export const useEditorGeneration = (
   const [isGenerating, setIsGenerating] = useState(false);
   const [generatedResult, setGeneratedResult] = useState<string | null>(null);
   const [isOptimizing, setIsOptimizing] = useState(false);
-  const [elapsedTime, setElapsedTime] = useState(0);
   const [isDownloading, setIsDownloading] = useState(false);
   const abortControllerRef = useRef<AbortController | null>(null);
-
-  // Timer
-  useEffect(() => {
-    let interval: ReturnType<typeof setInterval>;
-    if (isGenerating) {
-      setElapsedTime(0);
-      const startTime = Date.now();
-      interval = setInterval(() => {
-        setElapsedTime((Date.now() - startTime) / 1000);
-      }, 100);
-    }
-    return () => {
-      if (interval) clearInterval(interval);
-    };
-  }, [isGenerating]);
 
   useEffect(() => {
     return () => abortControllerRef.current?.abort();
@@ -253,6 +239,52 @@ export const useEditorGeneration = (
           1,
           controller.signal,
         );
+      } else if (activeProvider === "openai") {
+        // Convert all blobs to base64
+        const base64Images = await Promise.all(
+          imageBlobs.map(
+            (blob) =>
+              new Promise<string>((resolve) => {
+                const reader = new FileReader();
+                reader.onloadend = () => resolve(reader.result as string);
+                reader.readAsDataURL(blob);
+              })
+          )
+        );
+        const genResult = await generateOpenAIImage(
+          config.model as any,
+          finalPrompt,
+          "1:1",
+          undefined,
+          undefined,
+          false,
+          undefined,
+          base64Images
+        );
+        result = { url: genResult.url };
+      } else if (activeProvider === "google") {
+        // Convert all blobs to base64
+        const base64Images = await Promise.all(
+          imageBlobs.map(
+            (blob) =>
+              new Promise<string>((resolve) => {
+                const reader = new FileReader();
+                reader.onloadend = () => resolve(reader.result as string);
+                reader.readAsDataURL(blob);
+              })
+          )
+        );
+        const genResult = await generateGoogleImage(
+          config.model as any,
+          finalPrompt,
+          "1:1",
+          undefined,
+          undefined,
+          false,
+          undefined,
+          base64Images
+        );
+        result = { url: genResult.url };
       } else {
         const customProviders = getCustomProviders();
         const activeCustom = customProviders.find(
@@ -357,7 +389,6 @@ export const useEditorGeneration = (
     isOptimizing,
     isDownloading,
     isUploading,
-    elapsedTime,
     generatedResult,
     setGeneratedResult,
     handleGenerate,

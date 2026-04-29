@@ -4,13 +4,13 @@ import { ImageComparison } from "./ImageComparison";
 import { Paintbrush, Sparkles, Film, Image as ImageIcon } from "lucide-react";
 import { GeneratedImage } from "../types";
 import { useSettingsStore } from "../store/settingsStore";
+import { useUIStore } from "../store/uiStore";
 import { translations } from "../translations";
 
 interface PreviewStageProps {
   currentImage: GeneratedImage | null;
   isWorking: boolean;
   isTranslating: boolean;
-  elapsedTime: number;
   isComparing: boolean;
   tempUpscaledImage: string | null;
   showInfo: boolean;
@@ -24,11 +24,26 @@ interface PreviewStageProps {
   isGeneratingVideoPrompt?: boolean;
 }
 
+const TimerDisplay = () => {
+  const [elapsed, setElapsed] = React.useState(0);
+  React.useEffect(() => {
+    const start = Date.now();
+    const interval = setInterval(() => {
+      setElapsed((Date.now() - start) / 1000);
+    }, 100);
+    return () => clearInterval(interval);
+  }, []);
+  return (
+    <p className="mt-2 font-mono text-purple-300 text-lg">
+      {elapsed.toFixed(1)}s
+    </p>
+  );
+};
+
 export const PreviewStage: React.FC<PreviewStageProps> = ({
   currentImage,
   isWorking,
   isTranslating,
-  elapsedTime,
   isComparing,
   tempUpscaledImage,
   setImageDimensions,
@@ -40,6 +55,7 @@ export const PreviewStage: React.FC<PreviewStageProps> = ({
   const { language } = useSettingsStore();
   const t = translations[language];
   const videoRef = useRef<HTMLVideoElement>(null);
+  const isOpfsHydrated = useUIStore((s) => s.isOpfsHydrated);
 
   // -- Animation Logic State --
   // We buffer the image to display so we can animate the old one fading out
@@ -100,11 +116,7 @@ export const PreviewStage: React.FC<PreviewStageProps> = ({
           <p className="mt-8 text-white/80 font-medium animate-pulse text-lg">
             {isTranslating ? t.translating : t.dreaming}
           </p>
-          {!isTranslating && (
-            <p className="mt-2 font-mono text-purple-300 text-lg">
-              {elapsedTime.toFixed(1)}s
-            </p>
-          )}
+          {!isTranslating && <TimerDisplay />}
         </div>
       ) : null}
       {displayImage ? (
@@ -154,18 +166,24 @@ export const PreviewStage: React.FC<PreviewStageProps> = ({
                   justifyContent: "center",
                 }}
               >
-                <img
-                  src={displayImage.url}
-                  alt={displayImage.prompt}
-                  className={`max-w-full max-h-full object-contain shadow-2xl cursor-grab active:cursor-grabbing transition-all duration-300 ${displayImage.isBlurred ? "blur-lg scale-105" : ""}`}
-                  onContextMenu={(e) => e.preventDefault()}
-                  onLoad={(e) => {
-                    setImageDimensions({
-                      width: e.currentTarget.naturalWidth,
-                      height: e.currentTarget.naturalHeight,
-                    });
-                  }}
-                />
+                {isOpfsHydrated ? (
+                  <img
+                    src={displayImage.url}
+                    alt={displayImage.prompt}
+                    className={`max-w-full max-h-full object-contain shadow-2xl cursor-grab active:cursor-grabbing transition-all duration-300 ${displayImage.isBlurred ? "blur-lg scale-105" : ""}`}
+                    onContextMenu={(e) => e.preventDefault()}
+                    onLoad={(e) => {
+                      setImageDimensions({
+                        width: e.currentTarget.naturalWidth,
+                        height: e.currentTarget.naturalHeight,
+                      });
+                    }}
+                  />
+                ) : (
+                  <div className="w-full h-full flex items-center justify-center animate-pulse">
+                    <ImageIcon className="w-16 h-16 text-white/10" />
+                  </div>
+                )}
               </TransformComponent>
             </TransformWrapper>
           )}

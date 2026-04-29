@@ -14,6 +14,8 @@ export const useTokensForm = () => {
   const [giteeToken, setGiteeToken] = useState("");
   const [msToken, setMsToken] = useState("");
   const [a4fToken, setA4FToken] = useState("");
+  const [openaiToken, setOpenaiToken] = useState("");
+  const [googleToken, setGoogleToken] = useState("");
 
   const calculateStats = useCallback(
     (tokensList: string[], providerId: ProviderId) => {
@@ -41,6 +43,12 @@ export const useTokensForm = () => {
 
     const aTokens = tokens.a4f || [];
     setA4FToken(aTokens.join(","));
+
+    const oTokens = tokens.openai || [];
+    setOpenaiToken(oTokens.join(","));
+
+    const googleTokens = tokens.google || [];
+    setGoogleToken(googleTokens.join(","));
   }, [tokens]);
 
   const updateToken = (type: ProviderId, value: string) => {
@@ -52,6 +60,10 @@ export const useTokensForm = () => {
       setMsToken(value);
     } else if (type === "a4f") {
       setA4FToken(value);
+    } else if (type === "openai") {
+      setOpenaiToken(value);
+    } else if (type === "google") {
+      setGoogleToken(value);
     }
   };
 
@@ -71,6 +83,14 @@ export const useTokensForm = () => {
     () => calculateStats(tokens.a4f || [], "a4f"),
     [calculateStats, tokens.a4f],
   );
+  const openaiStats = useMemo(
+    () => calculateStats(tokens.openai || [], "openai"),
+    [calculateStats, tokens.openai],
+  );
+  const googleStats = useMemo(
+    () => calculateStats(tokens.google || [], "google"),
+    [calculateStats, tokens.google],
+  );
 
   return {
     token,
@@ -81,6 +101,10 @@ export const useTokensForm = () => {
     msStats,
     a4fToken,
     a4fStats,
+    openaiToken,
+    openaiStats,
+    googleToken,
+    googleStats,
     updateToken,
     initializeTokens,
   };

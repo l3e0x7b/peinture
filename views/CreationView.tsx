@@ -37,7 +37,6 @@ export const CreationView: React.FC = () => {
 
   // Business logic hooks
   const {
-    elapsedTime,
     handleGenerate,
     handleOptimizePrompt,
     handleLiveClick,
@@ -155,7 +154,6 @@ export const CreationView: React.FC = () => {
             currentImage={currentImage}
             isWorking={isWorking}
             isTranslating={isTranslating}
-            elapsedTime={elapsedTime}
             isComparing={isComparing}
             tempUpscaledImage={tempUpscaledImage}
             showInfo={showInfo}

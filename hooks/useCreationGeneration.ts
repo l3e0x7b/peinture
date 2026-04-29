@@ -1,7 +1,10 @@
-import { useState, useRef, useEffect } from "react";
 import { toast } from "sonner";
 import { useSettingsStore } from "../store/settingsStore";
-import { useUIStore, useCurrentImage, useSetCurrentImage } from "../store/uiStore";
+import {
+  useUIStore,
+  useCurrentImage,
+  useSetCurrentImage,
+} from "../store/uiStore";
 import { useDataStore } from "../store/dataStore";
 import { translations } from "../translations";
 import { GeneratedImage, ModelOption, ProviderOption } from "../types";
@@ -17,6 +20,8 @@ import {
   optimizePrompt as optimizePromptHF,
 } from "../services/hfService";
 import { generateA4FImage, optimizePromptA4F } from "../services/a4fService";
+import { generateOpenAIImage } from "../services/openaiService";
+import { generateGoogleImage } from "../services/googleService";
 import {
   generateCustomImage,
   generateCustomVideo,
@@ -34,6 +39,7 @@ import {
   convertBlobToPng,
   addToPromptHistory,
 } from "../services/utils";
+import { getDefaultModelParams } from "../services/modelUtils";
 import { saveTempFileToOPFS } from "../services/storageService";
 import { resolveErrorMessage } from "../services/errorUtils";
 import {
@@ -41,7 +47,6 @@ import {
   GITEE_MODEL_OPTIONS,
   MS_MODEL_OPTIONS,
   A4F_MODEL_OPTIONS,
-  getModelConfig,
   getGuidanceScaleConfig,
   LIVE_MODELS,
 } from "../constants";
@@ -63,7 +68,7 @@ export const useCreationGeneration = () => {
     guidanceScale,
     setGuidanceScale,
     autoTranslate,
-    resetSettings,
+    resetImagineParams,
   } = useSettingsStore();
 
   const {
@@ -83,30 +88,6 @@ export const useCreationGeneration = () => {
   const { setHistory } = useDataStore();
 
   const t = translations[language];
-
-  // Timer state
-  const [elapsedTime, setElapsedTime] = useState<number>(0);
-  const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
-
-  // Cleanup timer on unmount
-  useEffect(() => {
-    return () => {
-      if (timerRef.current) clearInterval(timerRef.current);
-    };
-  }, []);
-
-  const startTimer = () => {
-    setElapsedTime(0);
-    const startTime = Date.now();
-    timerRef.current = setInterval(() => {
-      setElapsedTime((Date.now() - startTime) / 1000);
-    }, 100);
-    return startTime;
-  };
-
-  const stopTimer = () => {
-    if (timerRef.current) clearInterval(timerRef.current);
-  };
 
   // --- Image Generation ---
   const handleGenerate = async () => {
@@ -129,13 +110,13 @@ export const useCreationGeneration = () => {
       }
     }
 
-    const startTime = startTimer();
+    const startTime = Date.now();
 
     try {
       const seedNumber = seed.trim() === "" ? undefined : parseInt(seed, 10);
       const gsConfig = getGuidanceScaleConfig(model, provider);
       const currentGuidanceScale = gsConfig ? guidanceScale : undefined;
-      const requestHD = true;
+      const requestHD = useSettingsStore.getState().enableHD;
 
       let result;
       if (provider === "gitee") {
@@ -170,6 +151,26 @@ export const useCreationGeneration = () => {
         );
       } else if (provider === "a4f") {
         result = await generateA4FImage(
+          model,
+          finalPrompt,
+          aspectRatio,
+          seedNumber,
+          steps,
+          requestHD,
+          currentGuidanceScale,
+        );
+      } else if (provider === "openai") {
+        result = await generateOpenAIImage(
+          model,
+          finalPrompt,
+          aspectRatio,
+          seedNumber,
+          steps,
+          requestHD,
+          currentGuidanceScale,
+        );
+      } else if (provider === "google") {
+        result = await generateGoogleImage(
           model,
           finalPrompt,
           aspectRatio,
@@ -249,7 +250,6 @@ export const useCreationGeneration = () => {
     } catch (err: any) {
       toast.error(resolveErrorMessage(err, t, "generationFailed"));
     } finally {
-      stopTimer();
       setIsLoading(false);
     }
   };
@@ -286,7 +286,9 @@ export const useCreationGeneration = () => {
       setPrompt(optimized);
     } catch (err: any) {
       console.error("Optimization failed", err);
-      toast.error(resolveErrorMessage(err, t, "error_prompt_optimization_failed"));
+      toast.error(
+        resolveErrorMessage(err, t, "error_prompt_optimization_failed"),
+      );
     } finally {
       setIsOptimizing(false);
     }
@@ -377,6 +379,7 @@ export const useCreationGeneration = () => {
         ...currentImage,
         videoStatus: "generating",
         videoProvider: currentVideoProvider,
+        videoTimestamp: Date.now(),
       } as GeneratedImage;
       setCurrentImage(loadingImage);
       setHistory((prev) =>
@@ -500,9 +503,9 @@ export const useCreationGeneration = () => {
 
   // --- Reset ---
   const handleReset = () => {
-    resetSettings();
+    resetImagineParams();
     let newModel = model;
-    
+
     if (provider === "gitee")
       newModel = GITEE_MODEL_OPTIONS[0].value as ModelOption;
     else if (provider === "modelscope")
@@ -521,42 +524,10 @@ export const useCreationGeneration = () => {
         newModel = activeCustom.models.generate[0].id as ModelOption;
       }
     }
-    
+
     setModel(newModel);
 
-    let defaultSteps = 9;
-    let defaultGs = 7.5;
-    let hasGs = false;
-
-    const customProviders = getCustomProviders();
-    const activeCustom = customProviders.find((p) => p.id === provider);
-
-    if (activeCustom) {
-      const customModel = activeCustom.models.generate?.find(m => m.id === newModel);
-      if (customModel) {
-        if (customModel.steps) defaultSteps = customModel.steps.default;
-        if (customModel.guidance) {
-          hasGs = true;
-          defaultGs = customModel.guidance.default;
-        }
-      } else {
-        const fallback = getModelConfig(provider, newModel);
-        defaultSteps = fallback.default;
-        const fallbackGs = getGuidanceScaleConfig(newModel, provider);
-        if (fallbackGs) {
-          hasGs = true;
-          defaultGs = fallbackGs.default;
-        }
-      }
-    } else {
-      const config = getModelConfig(provider, newModel);
-      defaultSteps = config.default;
-      const gsConfig = getGuidanceScaleConfig(newModel, provider);
-      if (gsConfig) {
-        hasGs = true;
-        defaultGs = gsConfig.default;
-      }
-    }
+    const { defaultSteps, defaultGs, hasGs } = getDefaultModelParams(provider, newModel);
 
     setSteps(defaultSteps);
     if (hasGs) {
@@ -565,7 +536,6 @@ export const useCreationGeneration = () => {
   };
 
   return {
-    elapsedTime,
     handleGenerate,
     handleOptimizePrompt,
     handleLiveClick,

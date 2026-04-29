@@ -39,8 +39,18 @@ export const ControlPanel: React.FC = () => {
     setGuidanceScale,
     seed,
     setSeed,
+    enableHD,
+    setEnableHD,
   } = useSettingsStore();
-  const { tokens } = useConfigStore();
+  const { tokens, openaiConfig, googleConfig } = useConfigStore();
+
+  const toPascalCaseWithSpace = (str: string) => {
+    if (!str) return "";
+    return str
+      .split("-")
+      .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+      .join(" ");
+  };
 
   const t = translations[language];
   const [isAdvancedOpen, setIsAdvancedOpen] = useState(false);
@@ -113,6 +123,32 @@ export const ControlPanel: React.FC = () => {
             })),
           });
         }
+
+        // OpenAI (Only if token exists)
+        if (tokens.openai && tokens.openai.length > 0 && openaiConfig.modelId) {
+          groups.push({
+            label: "OpenAI",
+            options: [
+              {
+                label: toPascalCaseWithSpace(openaiConfig.modelId),
+                value: `openai:${openaiConfig.modelId}`,
+              },
+            ],
+          });
+        }
+
+        // Google (Only if token exists)
+        if (tokens.google && tokens.google.length > 0 && googleConfig.modelId) {
+          groups.push({
+            label: "Google",
+            options: [
+              {
+                label: toPascalCaseWithSpace(googleConfig.modelId),
+                value: `google:${googleConfig.modelId}`,
+              },
+            ],
+          });
+        }
       }
 
       // 2. Custom Providers
@@ -139,7 +175,7 @@ export const ControlPanel: React.FC = () => {
     // Listen for storage changes to update list dynamically (e.g. after adding token in settings)
     window.addEventListener("storage", updateModelOptions);
     return () => window.removeEventListener("storage", updateModelOptions);
-  }, [t, tokens]);
+  }, [t, tokens, openaiConfig, googleConfig]);
 
   // Determine current model configuration (Standard or Custom)
   const activeConfig = useMemo(() => {
@@ -223,6 +259,24 @@ export const ControlPanel: React.FC = () => {
         onChange={onModelChange}
         options={modelOptions}
         icon={<Cpu className="w-5 h-5" />}
+        headerContent={
+          (provider === "openai" || provider === "google") && (
+            <div className="flex items-center gap-2 animate-in fade-in duration-300">
+              <span className="text-xs font-medium text-white/50">{t.hd}</span>
+              <Tooltip content={enableHD ? t.hdEnabled : t.hdDisabled}>
+                <button
+                  type="button"
+                  onClick={() => setEnableHD(!enableHD)}
+                  className={`relative inline-flex h-5 w-9 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-purple-500/50 ${enableHD ? "bg-purple-600" : "bg-white/10"}`}
+                >
+                  <span
+                    className={`${enableHD ? "translate-x-4" : "translate-x-1"} inline-block h-3.5 w-3.5 transform rounded-full bg-white transition-transform`}
+                  />
+                </button>
+              </Tooltip>
+            </div>
+          )
+        }
       />
 
       {/* Aspect Ratio */}
@@ -234,7 +288,8 @@ export const ControlPanel: React.FC = () => {
       />
 
       {/* Advanced Settings */}
-      <div className="border-t border-white/5 pt-4">
+      {provider !== "openai" && provider !== "google" && (
+        <div className="border-t border-white/5 pt-4">
         <button
           type="button"
           onClick={() => setIsAdvancedOpen(!isAdvancedOpen)}
@@ -348,8 +403,9 @@ export const ControlPanel: React.FC = () => {
               </div>
             </div>
           </div>
+          </div>
         </div>
-      </div>
+      )}
     </div>
   );
 };
