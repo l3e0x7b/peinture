@@ -21,6 +21,7 @@ interface PreviewStageProps {
   // New Props for Live
   isLiveMode?: boolean;
   onToggleLiveMode?: () => void;
+  onImageClick?: () => void;
   isGeneratingVideoPrompt?: boolean;
 }
 
@@ -50,6 +51,7 @@ export const PreviewStage: React.FC<PreviewStageProps> = ({
   children,
   isLiveMode,
   onToggleLiveMode,
+  onImageClick,
   isGeneratingVideoPrompt,
 }) => {
   const { language } = useSettingsStore();
@@ -123,11 +125,12 @@ export const PreviewStage: React.FC<PreviewStageProps> = ({
         <div
           // Removed key={currentImage.id} to allow internal CSS transition
           // Removed bg-black/40 to make background transparent
-          className={`w-full h-full flex items-center justify-center relative transition-opacity duration-300 ease-in-out ${isTransitioning ? "opacity-0" : "opacity-100"}`}
+          className={`w-full h-full flex items-center justify-center relative transition-opacity duration-300 ease-in-out ${isTransitioning ? "opacity-0" : "opacity-100"} ${!isComparing ? "cursor-zoom-in" : ""}`}
+          onClick={() => !isComparing && onImageClick?.()}
         >
           {/* Image View, Comparison View, or Video View */}
           {isComparing && tempUpscaledImage ? (
-            <div className="w-full h-full">
+            <div className="w-full h-full" onClick={(e) => e.stopPropagation()}>
               <ImageComparison
                 beforeImage={displayImage.url}
                 afterImage={tempUpscaledImage}
@@ -170,7 +173,7 @@ export const PreviewStage: React.FC<PreviewStageProps> = ({
                   <img
                     src={displayImage.url}
                     alt={displayImage.prompt}
-                    className={`max-w-full max-h-full object-contain shadow-2xl cursor-grab active:cursor-grabbing transition-all duration-300 ${displayImage.isBlurred ? "blur-lg scale-105" : ""}`}
+                    className={`max-w-full max-h-full object-contain shadow-2xl active:cursor-grabbing transition-all duration-300 ${displayImage.isBlurred ? "blur-lg scale-105" : ""}`}
                     onContextMenu={(e) => e.preventDefault()}
                     onLoad={(e) => {
                       setImageDimensions({
@@ -202,7 +205,10 @@ export const PreviewStage: React.FC<PreviewStageProps> = ({
           {displayImage.videoStatus === "success" &&
             displayImage.videoUrl &&
             !isComparing && (
-              <div className="absolute top-4 right-4 z-20">
+              <div
+                className="absolute top-4 right-4 z-20"
+                onClick={(e) => e.stopPropagation()}
+              >
                 <button
                   onClick={onToggleLiveMode}
                   className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-black/60 backdrop-blur border border-white/20 text-white/90 hover:bg-white/10 transition-all shadow-lg active:scale-95"

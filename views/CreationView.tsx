@@ -162,6 +162,7 @@ export const CreationView: React.FC = () => {
             setImageDimensions={setImageDimensions}
             isLiveMode={isLiveMode}
             onToggleLiveMode={() => setIsLiveMode(!isLiveMode)}
+            onImageClick={() => setIsViewerOpen(true)}
           />
 
           {!shouldHideToolbar && (
