@@ -1,4 +1,5 @@
 import React, { useEffect } from "react";
+import { createPortal } from "react-dom";
 import { TransformWrapper, TransformComponent } from "react-zoom-pan-pinch";
 import { ChevronLeft, ChevronRight, X } from "lucide-react";
 import { GeneratedImage } from "../types";
@@ -45,10 +46,9 @@ export const MediaViewerModal: React.FC<MediaViewerModalProps> = ({
 
   const isVideo = isLiveMode && Boolean(image.videoUrl);
 
-  return (
+  return createPortal(
     <div
-      className="fixed inset-0 z-[120] bg-black/90 backdrop-blur-xl animate-in fade-in duration-200"
-      style={{ height: "100dvh" }}
+      className="fixed left-0 top-0 z-[120] h-[100dvh] w-screen overflow-hidden bg-black/90 backdrop-blur-xl animate-in fade-in duration-200"
       onClick={onClose}
       role="dialog"
       aria-modal="true"
@@ -92,7 +92,7 @@ export const MediaViewerModal: React.FC<MediaViewerModalProps> = ({
       </button>
 
       <div
-        className="w-full h-full flex items-center justify-center px-4 md:px-6"
+        className="absolute inset-0 box-border flex min-h-0 min-w-0 items-center justify-center overflow-hidden px-4 md:px-6"
         style={{
           paddingTop: "max(1rem, calc(env(safe-area-inset-top) + 1rem))",
           paddingBottom: "max(1rem, calc(env(safe-area-inset-bottom) + 1rem))",
@@ -100,7 +100,7 @@ export const MediaViewerModal: React.FC<MediaViewerModalProps> = ({
         onClick={(event) => event.stopPropagation()}
       >
         {isVideo ? (
-          <div className="w-full h-full flex items-center justify-center">
+          <div className="flex h-full w-full min-h-0 min-w-0 items-center justify-center overflow-hidden">
             <video
               src={image.videoUrl}
               className={`max-w-full max-h-full object-contain shadow-2xl transition-all duration-300 ${image.isBlurred ? "blur-lg scale-105" : ""}`}
@@ -110,8 +110,9 @@ export const MediaViewerModal: React.FC<MediaViewerModalProps> = ({
             />
           </div>
         ) : (
-          <div className="w-full h-full flex items-center justify-center">
+          <div className="flex h-full w-full min-h-0 min-w-0 items-center justify-center overflow-hidden">
             <TransformWrapper
+              key={image.id}
               initialScale={1}
               minScale={1}
               maxScale={8}
@@ -119,7 +120,11 @@ export const MediaViewerModal: React.FC<MediaViewerModalProps> = ({
               wheel={{ step: 0.5 }}
             >
               <TransformComponent
-                wrapperStyle={{ width: "100%", height: "100%" }}
+                wrapperStyle={{
+                  width: "100%",
+                  height: "100%",
+                  overflow: "hidden",
+                }}
                 contentStyle={{
                   width: "100%",
                   height: "100%",
@@ -139,6 +144,7 @@ export const MediaViewerModal: React.FC<MediaViewerModalProps> = ({
           </div>
         )}
       </div>
-    </div>
+    </div>,
+    document.body,
   );
 };
