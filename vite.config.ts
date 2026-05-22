@@ -6,6 +6,13 @@ export default defineConfig({
     server: {
       port: 3000,
       host: '0.0.0.0',
+      proxy: {
+        '/ms-api': {
+          target: 'https://api-inference.modelscope.cn',
+          changeOrigin: true,
+          rewrite: (path) => path.replace(/^\/ms-api/, ''),
+        }
+      }
     },
     base: './',
     plugins: [react()],

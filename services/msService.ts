@@ -10,10 +10,9 @@ import { API_MODEL_MAP } from "../constants";
 
 import { runWithTokenRetry } from "./tokenRetry";
 
-const MS_BASE_URL = "https://api-inference.modelscope.cn/";
+const MS_BASE_URL = "/ms-api/";
 const MS_GENERATE_ENDPOINT = `${MS_BASE_URL}v1/images/generations`;
-const MS_CHAT_API_URL =
-  "https://api-inference.modelscope.cn/v1/chat/completions";
+const MS_CHAT_API_URL = `${MS_BASE_URL}v1/chat/completions`;
 
 // Constants for image upload via HF Space
 const QWEN_EDIT_HF_BASE = "https://linoyts-qwen-image-edit-2511-fast.hf.space";

@@ -1,0 +1,8 @@
+{
+  "rewrites": [
+    {
+      "source": "/ms-api/:path*",
+      "destination": "https://api-inference.modelscope.cn/:path*"
+    }
+  ]
+}
