@@ -11,6 +11,11 @@ export default defineConfig({
           target: 'https://api-inference.modelscope.cn',
           changeOrigin: true,
           rewrite: (path) => path.replace(/^\/ms-api/, ''),
+        },
+        '/a4f-api': {
+          target: 'https://api.a4f.co',
+          changeOrigin: true,
+          rewrite: (path) => path.replace(/^\/a4f-api/, ''),
         }
       }
     },

@@ -9,8 +9,9 @@ import { API_MODEL_MAP } from "../constants";
 
 import { runWithTokenRetry } from "./tokenRetry";
 
-const A4F_GENERATE_API_URL = "https://api.a4f.co/v1/images/generations";
-const A4F_CHAT_API_URL = "https://api.a4f.co/v1/chat/completions";
+const A4F_BASE_URL = "/a4f-api/";
+const A4F_GENERATE_API_URL = `${A4F_BASE_URL}v1/images/generations`;
+const A4F_CHAT_API_URL = `${A4F_BASE_URL}v1/chat/completions`;
 
 // Token retry delegates to shared service
 const runWithA4FTokenRetry = <T>(

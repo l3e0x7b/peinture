@@ -3,6 +3,10 @@
     {
       "source": "/ms-api/:path*",
       "destination": "https://api-inference.modelscope.cn/:path*"
+    },
+    {
+      "source": "/a4f-api/:path*",
+      "destination": "https://api.a4f.co/:path*"
     }
   ]
 }
