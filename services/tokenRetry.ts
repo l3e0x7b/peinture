@@ -32,7 +32,11 @@ const markTokenExhausted = (providerId: ProviderId, token: string): void => {
 const QUOTA_ERROR_PATTERNS: Record<ProviderId, string[]> = {
   huggingface: [
     "429",
-    "You have exceeded your free GPU quota",
+    "exceeded your free",
+    "quota",
+    "limit",
+    "GPU quota",
+    "ZeroGPU quota",
     "error_quota_exhausted",
   ],
   gitee: ["429", "quota", "credit"],
