@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useMemo } from "react";
 import { Select, OptionGroup } from "./Select";
 import { Tooltip } from "./Tooltip";
+import { ProviderStatsMiniWidget } from "./ProviderStatsMiniWidget";
 import {
   Settings,
   ChevronUp,
@@ -260,22 +261,26 @@ export const ControlPanel: React.FC = () => {
         options={modelOptions}
         icon={<Cpu className="w-5 h-5" />}
         headerContent={
-          (provider === "openai" || provider === "google") && (
-            <div className="flex items-center gap-2 animate-in fade-in duration-300">
-              <span className="text-xs font-medium text-white/50">{t.hd}</span>
-              <Tooltip content={enableHD ? t.hdEnabled : t.hdDisabled}>
-                <button
-                  type="button"
-                  onClick={() => setEnableHD(!enableHD)}
-                  className={`relative inline-flex h-5 w-9 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-purple-500/50 ${enableHD ? "bg-purple-600" : "bg-white/10"}`}
-                >
-                  <span
-                    className={`${enableHD ? "translate-x-4" : "translate-x-1"} inline-block h-3.5 w-3.5 transform rounded-full bg-white transition-transform`}
-                  />
-                </button>
-              </Tooltip>
-            </div>
-          )
+          <div className="flex items-center justify-between gap-8 animate-in fade-in duration-300">
+            <ProviderStatsMiniWidget />
+            
+            {(provider === "openai" || provider === "google") && (
+              <div className="flex items-center gap-2">
+                <span className="text-xs font-medium text-white/50">{t.hd}</span>
+                <Tooltip content={enableHD ? t.hdEnabled : t.hdDisabled}>
+                  <button
+                    type="button"
+                    onClick={() => setEnableHD(!enableHD)}
+                    className={`relative inline-flex h-5 w-9 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-purple-500/50 ${enableHD ? "bg-purple-600" : "bg-white/10"}`}
+                  >
+                    <span
+                      className={`${enableHD ? "translate-x-4" : "translate-x-1"} inline-block h-3.5 w-3.5 transform rounded-full bg-white transition-transform`}
+                    />
+                  </button>
+                </Tooltip>
+              </div>
+            )}
+          </div>
         }
       />
 
