@@ -205,6 +205,25 @@ export const CreationView: React.FC = () => {
           onPrev={handleViewerPrev}
           onNext={handleViewerNext}
           onClose={() => setIsViewerOpen(false)}
+          showInfo={showInfo}
+          setShowInfo={setShowInfo}
+          isUpscaling={isUpscaling}
+          isDownloading={isDownloading}
+          isUploading={isUploading}
+          isUploaded={isCurrentUploaded}
+          isLiveGenerating={isLiveGenerating}
+          copiedPrompt={copiedPrompt}
+          imageDimensions={imageDimensions}
+          provider={provider}
+          handleUpscale={handleUpscale}
+          handleToggleBlur={handleToggleBlur}
+          handleDownload={handleDownload}
+          handleDelete={handleDelete}
+          handleCancelUpscale={handleCancelUpscale}
+          handleApplyUpscale={handleApplyUpscale}
+          onLiveClick={handleLiveClick}
+          handleUploadToS3={uploadCurrentToCloud}
+          handleCopyPrompt={handleCopyPrompt}
         />
       )}
     </main>

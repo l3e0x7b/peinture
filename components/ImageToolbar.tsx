@@ -57,6 +57,7 @@ interface ImageToolbarProps {
   copiedPrompt: boolean;
   handleCopyPrompt: () => void;
   handleOpenViewer: () => void;
+  hideViewerButton?: boolean;
 }
 
 export const ImageToolbar: React.FC<ImageToolbarProps> = ({
@@ -83,6 +84,7 @@ export const ImageToolbar: React.FC<ImageToolbarProps> = ({
   copiedPrompt,
   handleCopyPrompt,
   handleOpenViewer,
+  hideViewerButton,
 }) => {
   const { language } = useSettingsStore();
   const t = translations[language];
@@ -333,17 +335,20 @@ export const ImageToolbar: React.FC<ImageToolbarProps> = ({
                 </button>
               </Tooltip>
 
-              <div className="w-px h-5 bg-white/10 mx-1"></div>
-
-              <Tooltip content={viewLabel}>
-                <button
-                  onClick={handleOpenViewer}
-                  className="flex items-center justify-center w-10 h-10 rounded-xl text-white/70 hover:text-white hover:bg-white/10 transition-all"
-                  aria-label={viewLabel}
-                >
-                  <Maximize2 className="w-5 h-5" />
-                </button>
-              </Tooltip>
+              {!hideViewerButton && (
+                <>
+                  <div className="w-px h-5 bg-white/10 mx-1"></div>
+                  <Tooltip content={viewLabel}>
+                    <button
+                      onClick={handleOpenViewer}
+                      className="flex items-center justify-center w-10 h-10 rounded-xl text-white/70 hover:text-white hover:bg-white/10 transition-all"
+                      aria-label={viewLabel}
+                    >
+                      <Maximize2 className="w-5 h-5" />
+                    </button>
+                  </Tooltip>
+                </>
+              )}
 
               <div className="w-px h-5 bg-white/10 mx-1"></div>
 

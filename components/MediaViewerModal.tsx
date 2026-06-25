@@ -3,6 +3,7 @@ import { createPortal } from "react-dom";
 import { TransformWrapper, TransformComponent } from "react-zoom-pan-pinch";
 import { ChevronLeft, ChevronRight, X } from "lucide-react";
 import { GeneratedImage } from "../types";
+import { ImageToolbar } from "./ImageToolbar";
 
 interface MediaViewerModalProps {
   image: GeneratedImage;
@@ -11,6 +12,26 @@ interface MediaViewerModalProps {
   onPrev: () => void;
   onNext: () => void;
   onClose: () => void;
+  // Toolbar props
+  showInfo: boolean;
+  setShowInfo: (val: boolean) => void;
+  isUpscaling: boolean;
+  isDownloading: boolean;
+  isUploading: boolean;
+  isUploaded: boolean;
+  isLiveGenerating: boolean;
+  copiedPrompt: boolean;
+  imageDimensions: { width: number; height: number } | null;
+  provider?: string;
+  handleUpscale: () => void;
+  handleToggleBlur: () => void;
+  handleDownload: () => void;
+  handleDelete: () => void;
+  handleCancelUpscale: () => void;
+  handleApplyUpscale: () => void;
+  onLiveClick: () => void;
+  handleUploadToS3?: () => void;
+  handleCopyPrompt: () => void;
 }
 
 export const MediaViewerModal: React.FC<MediaViewerModalProps> = ({
@@ -20,6 +41,25 @@ export const MediaViewerModal: React.FC<MediaViewerModalProps> = ({
   onPrev,
   onNext,
   onClose,
+  showInfo,
+  setShowInfo,
+  isUpscaling,
+  isDownloading,
+  isUploading,
+  isUploaded,
+  isLiveGenerating,
+  copiedPrompt,
+  imageDimensions,
+  provider,
+  handleUpscale,
+  handleToggleBlur,
+  handleDownload,
+  handleDelete,
+  handleCancelUpscale,
+  handleApplyUpscale,
+  onLiveClick,
+  handleUploadToS3,
+  handleCopyPrompt,
 }) => {
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
@@ -48,8 +88,7 @@ export const MediaViewerModal: React.FC<MediaViewerModalProps> = ({
 
   return createPortal(
     <div
-      className="fixed left-0 top-0 z-[120] h-[100dvh] w-screen overflow-hidden bg-black/90 backdrop-blur-xl animate-in fade-in duration-200"
-      onClick={onClose}
+      className="fixed left-0 top-0 z-[120] h-[100dvh] w-screen overflow-hidden bg-black/90 backdrop-blur-xl animate-in fade-in duration-200 group"
       role="dialog"
       aria-modal="true"
     >
@@ -97,7 +136,6 @@ export const MediaViewerModal: React.FC<MediaViewerModalProps> = ({
           paddingTop: "max(1rem, calc(env(safe-area-inset-top) + 1rem))",
           paddingBottom: "max(1rem, calc(env(safe-area-inset-bottom) + 1rem))",
         }}
-        onClick={(event) => event.stopPropagation()}
       >
         {isVideo ? (
           <div className="flex h-full w-full min-h-0 min-w-0 items-center justify-center overflow-hidden">
@@ -143,6 +181,35 @@ export const MediaViewerModal: React.FC<MediaViewerModalProps> = ({
             </TransformWrapper>
           </div>
         )}
+      </div>
+
+      <div className="absolute bottom-4 md:bottom-6 inset-x-0 flex justify-center z-[140]">
+        <ImageToolbar
+          currentImage={image}
+          isComparing={false}
+          showInfo={showInfo}
+          setShowInfo={setShowInfo}
+          isUpscaling={isUpscaling}
+          isDownloading={isDownloading}
+          handleUpscale={handleUpscale}
+          handleToggleBlur={handleToggleBlur}
+          handleDownload={handleDownload}
+          handleDelete={handleDelete}
+          handleCancelUpscale={handleCancelUpscale}
+          handleApplyUpscale={handleApplyUpscale}
+          isLiveMode={isLiveMode}
+          onLiveClick={onLiveClick}
+          isLiveGenerating={isLiveGenerating}
+          provider={provider}
+          handleUploadToS3={handleUploadToS3}
+          isUploading={isUploading}
+          isUploaded={isUploaded}
+          imageDimensions={imageDimensions}
+          copiedPrompt={copiedPrompt}
+          handleCopyPrompt={handleCopyPrompt}
+          handleOpenViewer={() => {}}
+          hideViewerButton={true}
+        />
       </div>
     </div>,
     document.body,
