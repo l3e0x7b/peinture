@@ -21,6 +21,8 @@ import {
   ProviderId,
 } from "../../types";
 
+type ApiConfig = { apiUrl: string; modelId: string };
+
 interface ProviderTabProps {
   serviceMode: ServiceMode;
   // Token States
@@ -36,10 +38,22 @@ interface ProviderTabProps {
   openaiStats: any;
   googleToken: string;
   googleStats: any;
-  openaiConfig: { apiUrl: string; modelId: string };
-  setOpenaiConfig: (val: { apiUrl: string; modelId: string }) => void;
-  googleConfig: { apiUrl: string; modelId: string };
-  setGoogleConfig: (val: { apiUrl: string; modelId: string }) => void;
+  agnesToken: string;
+  agnesStats: any;
+  openaiConfig: ApiConfig;
+  setOpenaiConfig: (val: ApiConfig) => void;
+  openaiImagenConfig: ApiConfig;
+  setOpenaiImagenConfig: (val: ApiConfig) => void;
+  openaiUseImagenMode: boolean;
+  setOpenaiUseImagenMode: (val: boolean) => void;
+  googleConfig: ApiConfig;
+  setGoogleConfig: (val: ApiConfig) => void;
+  googleImagenConfig: ApiConfig;
+  setGoogleImagenConfig: (val: ApiConfig) => void;
+  googleUseImagenMode: boolean;
+  setGoogleUseImagenMode: (val: boolean) => void;
+  agnesConfig: ApiConfig;
+  setAgnesConfig: (val: ApiConfig) => void;
   // Update Handler
   updateToken: (type: ProviderId, val: string) => void;
   // Custom Provider Props
@@ -78,6 +92,33 @@ export const ProviderTab: React.FC<ProviderTabProps> = (props) => {
   const toggleTokenShow = (key: string) => {
     setShowTokens((prev) => ({ ...prev, [key]: !prev[key] }));
   };
+
+  const renderToggleSwitch = (
+    label: string,
+    checked: boolean,
+    onChange: () => void,
+  ) => (
+    <div className="flex items-center justify-between py-2 px-3 bg-white/5 rounded-lg border border-white/10">
+      <label className="text-sm font-medium text-white/80 cursor-pointer">
+        {label}
+      </label>
+      <button
+        type="button"
+        onClick={onChange}
+        className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none ${
+          checked ? 'bg-purple-500' : 'bg-white/20'
+        }`}
+        role="switch"
+        aria-checked={checked}
+      >
+        <span
+          className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
+            checked ? 'translate-x-6' : 'translate-x-1'
+          }`}
+        />
+      </button>
+    </div>
+  );
 
   const renderProviderPanel = (
     id: string,
@@ -310,23 +351,55 @@ export const ProviderTab: React.FC<ProviderTabProps> = (props) => {
             "OpenAI",
             "bg-blue-400",
             <div className="space-y-4">
-              {renderConfigInput(
-                t.api_url || "API URL",
-                props.openaiConfig.apiUrl,
-                (val) =>
-                  props.setOpenaiConfig({ ...props.openaiConfig, apiUrl: val }),
-                "https://api.openai.com/v1/responses",
+              {renderToggleSwitch(
+                props.openaiUseImagenMode ? t.using_imagen_api : t.use_imagen_api,
+                props.openaiUseImagenMode,
+                () => props.setOpenaiUseImagenMode(!props.openaiUseImagenMode)
               )}
-              {renderConfigInput(
-                t.model || "Model ID",
-                props.openaiConfig.modelId,
-                (val) =>
-                  props.setOpenaiConfig({
-                    ...props.openaiConfig,
-                    modelId: val,
-                  }),
-                "gpt-5.4",
+
+              {/* Conditional Config Fields */}
+              {props.openaiUseImagenMode ? (
+                <>
+                  {renderConfigInput(
+                    t.api_url_imagen || "API URL (Imagen)",
+                    props.openaiImagenConfig.apiUrl,
+                    (val) =>
+                      props.setOpenaiImagenConfig({ ...props.openaiImagenConfig, apiUrl: val }),
+                    "https://api.openai.com/v1/images",
+                  )}
+                  {renderConfigInput(
+                    t.model_id_imagen || "Model ID (Imagen)",
+                    props.openaiImagenConfig.modelId,
+                    (val) =>
+                      props.setOpenaiImagenConfig({
+                        ...props.openaiImagenConfig,
+                        modelId: val,
+                      }),
+                    "gpt-image-1",
+                  )}
+                </>
+              ) : (
+                <>
+                  {renderConfigInput(
+                    t.api_url_tool_call || "API URL (Tool Call)",
+                    props.openaiConfig.apiUrl,
+                    (val) =>
+                      props.setOpenaiConfig({ ...props.openaiConfig, apiUrl: val }),
+                    "https://api.openai.com/v1/responses",
+                  )}
+                  {renderConfigInput(
+                    t.model_id_tool_call || "Model ID (Tool Call)",
+                    props.openaiConfig.modelId,
+                    (val) =>
+                      props.setOpenaiConfig({
+                        ...props.openaiConfig,
+                        modelId: val,
+                      }),
+                    "gpt-5.4",
+                  )}
+                </>
               )}
+
               <div className="space-y-2">
                 <label className="text-xs font-medium text-white/60">
                   {t.api_token || "API Token"}
@@ -350,23 +423,55 @@ export const ProviderTab: React.FC<ProviderTabProps> = (props) => {
             "Google Gemini",
             "bg-blue-600",
             <div className="space-y-4">
-              {renderConfigInput(
-                t.api_url || "API URL",
-                props.googleConfig.apiUrl,
-                (val) =>
-                  props.setGoogleConfig({ ...props.googleConfig, apiUrl: val }),
-                "https://generativelanguage.googleapis.com/v1beta/models",
+              {renderToggleSwitch(
+                props.googleUseImagenMode ? t.using_imagen_api : t.use_imagen_api,
+                props.googleUseImagenMode,
+                () => props.setGoogleUseImagenMode(!props.googleUseImagenMode)
               )}
-              {renderConfigInput(
-                t.model || "Model ID",
-                props.googleConfig.modelId,
-                (val) =>
-                  props.setGoogleConfig({
-                    ...props.googleConfig,
-                    modelId: val,
-                  }),
-                "gemini-3.1-flash-image-preview",
+
+              {/* Conditional Config Fields */}
+              {props.googleUseImagenMode ? (
+                <>
+                  {renderConfigInput(
+                    t.api_url_imagen || "API URL (Imagen)",
+                    props.googleImagenConfig.apiUrl,
+                    (val) =>
+                      props.setGoogleImagenConfig({ ...props.googleImagenConfig, apiUrl: val }),
+                    "https://generativelanguage.googleapis.com/v1beta/models",
+                  )}
+                  {renderConfigInput(
+                    t.model_id_imagen || "Model ID (Imagen)",
+                    props.googleImagenConfig.modelId,
+                    (val) =>
+                      props.setGoogleImagenConfig({
+                        ...props.googleImagenConfig,
+                        modelId: val,
+                      }),
+                    "imagen-3.0-generate-001",
+                  )}
+                </>
+              ) : (
+                <>
+                  {renderConfigInput(
+                    t.api_url_tool_call || "API URL (Tool Call)",
+                    props.googleConfig.apiUrl,
+                    (val) =>
+                      props.setGoogleConfig({ ...props.googleConfig, apiUrl: val }),
+                    "https://generativelanguage.googleapis.com/v1beta/models",
+                  )}
+                  {renderConfigInput(
+                    t.model_id_tool_call || "Model ID (Tool Call)",
+                    props.googleConfig.modelId,
+                    (val) =>
+                      props.setGoogleConfig({
+                        ...props.googleConfig,
+                        modelId: val,
+                      }),
+                    "gemini-3.1-flash-image-preview",
+                  )}
+                </>
               )}
+
               <div className="space-y-2">
                 <label className="text-xs font-medium text-white/60">
                   {t.api_token || "API Token"}
@@ -381,6 +486,44 @@ export const ProviderTab: React.FC<ProviderTabProps> = (props) => {
                   "",
                   "",
                   "https://aistudio.google.com/app/apikey",
+                )}
+              </div>
+            </div>,
+          )}
+          {renderProviderPanel(
+            "agnes",
+            "Agnes AI",
+            "bg-orange-500",
+            <div className="space-y-4">
+              {renderConfigInput(
+                t.api_url || "API URL",
+                props.agnesConfig.apiUrl,
+                (val) =>
+                  props.setAgnesConfig({ ...props.agnesConfig, apiUrl: val }),
+                "https://apihub.agnes-ai.com/v1",
+              )}
+              {renderConfigInput(
+                t.model_id_image || "Model ID (Image)",
+                props.agnesConfig.modelId,
+                (val) =>
+                  props.setAgnesConfig({ ...props.agnesConfig, modelId: val }),
+                "agnes-image-2.1-flash",
+              )}
+
+              <div className="space-y-2">
+                <label className="text-xs font-medium text-white/60">
+                  {t.api_token || "API Token"}
+                </label>
+                {renderTokenInput(
+                  "agnes",
+                  props.agnesToken,
+                  (v) => props.updateToken("agnes", v),
+                  props.agnesStats,
+                  "...,...",
+                  t.agnesTokenHelp,
+                  t.agnesTokenLink,
+                  t.agnesTokenHelpEnd,
+                  "https://platform.agnes-ai.com/settings/apiKeys",
                 )}
               </div>
             </div>,

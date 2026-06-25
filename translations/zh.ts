@@ -152,6 +152,10 @@ export const zh = {
   provider_gitee: "Gitee AI",
   provider_modelscope: "Model Scope",
   provider_a4f: "A4F",
+  provider_agnes: "Agnes AI",
+  agnesTokenHelp: "必需。支持多个令牌。前往",
+  agnesTokenLink: "API 密钥",
+  agnesTokenHelpEnd: "页面创建后填入。",
 
   // Custom Providers
   add_provider: "新增服务商",
@@ -166,6 +170,15 @@ export const zh = {
   fetch_status_failed: "失败",
   no_models_found: "未找到模型",
   models_count: "找到 {count} 个模型",
+
+  // Imagen API Mode
+  use_imagen_api: "使用 Imagen API",
+  using_imagen_api: "正在使用 Imagen API",
+  api_url_tool_call: "API URL（工具调用）",
+  api_url_imagen: "API URL（Imagen）",
+  model_id_tool_call: "模型 ID（工具调用）",
+  model_id_imagen: "模型 ID（Imagen）",
+  model_id_image: "模型 ID（图像）",
 
   // Models Labels
   model_creation: "创作模型",
@@ -192,6 +205,8 @@ export const zh = {
   error_openai_token_exhausted: "所有配置的 OpenAI 令牌已耗尽今日配额或无效。",
   error_google_token_required: "需要配置 Google Gemini 令牌。请在设置中进行配置。",
   error_google_token_exhausted: "所有配置的 Google Gemini 令牌已耗尽今日配额或无效。",
+  error_agnes_token_required: "需要配置 Agnes AI 令牌。请在设置中进行配置。",
+  error_agnes_token_exhausted: "所有配置的 Agnes AI 令牌已耗尽配额或无效。",
   error_api_connection: "API 连接失败。请检查您的网络或令牌。",
   error_invalid_response: "服务器返回了无效的响应。",
   error_prompt_optimization_failed: "优化提示词失败，请重试。",

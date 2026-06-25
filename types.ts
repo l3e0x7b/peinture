@@ -77,9 +77,9 @@ export type ModelOption =
     | "imagen-4"
     | string; // Allow custom model strings
 
-export type ProviderOption = "huggingface" | "gitee" | "modelscope" | "a4f" | "openai" | "google" | string;
+export type ProviderOption = "huggingface" | "gitee" | "modelscope" | "a4f" | "openai" | "google" | "agnes" | string;
 
-export type ProviderId = 'huggingface' | 'gitee' | 'modelscope' | 'a4f' | 'openai' | 'google';
+export type ProviderId = 'huggingface' | 'gitee' | 'modelscope' | 'a4f' | 'openai' | 'google' | 'agnes';
 
 export interface TokenStatus {
     date: string;

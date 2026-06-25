@@ -181,6 +181,11 @@ export const EDIT_MODELS: UnifiedModelOption[] = [
     value: "google:default",
     provider: "google",
   },
+  {
+    label: "Agnes AI",
+    value: "agnes:default",
+    provider: "agnes",
+  },
 ];
 
 export const LIVE_MODELS: UnifiedModelOption[] = [
@@ -190,6 +195,11 @@ export const LIVE_MODELS: UnifiedModelOption[] = [
     provider: "huggingface",
   },
   { label: "Wan 2.2", value: "gitee:wan2_2-i2v", provider: "gitee" },
+  {
+    label: "Agnes Video 2.0",
+    value: "agnes:agnes-video-v2.0",
+    provider: "agnes",
+  },
 ];
 
 export const TEXT_MODELS: UnifiedModelOption[] = [
@@ -216,6 +226,11 @@ export const TEXT_MODELS: UnifiedModelOption[] = [
   { label: "Qwen 3", value: "a4f:qwen-3", provider: "a4f" },
   { label: "GLM 4.5", value: "a4f:glm-4.5", provider: "a4f" },
   { label: "Kimi K2", value: "a4f:kimi-k2", provider: "a4f" },
+  {
+    label: "Agnes 2.0 Flash",
+    value: "agnes:agnes-2.0-flash",
+    provider: "agnes",
+  },
 ];
 
 export const UPSCALER_MODELS: UnifiedModelOption[] = [

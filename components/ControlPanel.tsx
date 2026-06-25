@@ -43,7 +43,16 @@ export const ControlPanel: React.FC = () => {
     enableHD,
     setEnableHD,
   } = useSettingsStore();
-  const { tokens, openaiConfig, googleConfig } = useConfigStore();
+  const {
+    tokens,
+    openaiConfig,
+    googleConfig,
+    agnesConfig,
+    openaiImagenConfig,
+    googleImagenConfig,
+    openaiUseImagenMode,
+    googleUseImagenMode,
+  } = useConfigStore();
 
   const toPascalCaseWithSpace = (str: string) => {
     if (!str) return "";
@@ -126,26 +135,45 @@ export const ControlPanel: React.FC = () => {
         }
 
         // OpenAI (Only if token exists)
-        if (tokens.openai && tokens.openai.length > 0 && openaiConfig.modelId) {
+        const openaiModelId = openaiUseImagenMode
+          ? openaiImagenConfig.modelId
+          : openaiConfig.modelId;
+        if (tokens.openai && tokens.openai.length > 0 && openaiModelId) {
           groups.push({
             label: "OpenAI",
             options: [
               {
-                label: toPascalCaseWithSpace(openaiConfig.modelId),
-                value: `openai:${openaiConfig.modelId}`,
+                label: toPascalCaseWithSpace(openaiModelId),
+                value: "openai:default",
               },
             ],
           });
         }
 
         // Google (Only if token exists)
-        if (tokens.google && tokens.google.length > 0 && googleConfig.modelId) {
+        const googleModelId = googleUseImagenMode
+          ? googleImagenConfig.modelId
+          : googleConfig.modelId;
+        if (tokens.google && tokens.google.length > 0 && googleModelId) {
           groups.push({
             label: "Google",
             options: [
               {
-                label: toPascalCaseWithSpace(googleConfig.modelId),
-                value: `google:${googleConfig.modelId}`,
+                label: toPascalCaseWithSpace(googleModelId),
+                value: "google:default",
+              },
+            ],
+          });
+        }
+
+        // Agnes AI (Only if token exists)
+        if (tokens.agnes && tokens.agnes.length > 0 && agnesConfig.modelId) {
+          groups.push({
+            label: "Agnes AI",
+            options: [
+              {
+                label: toPascalCaseWithSpace(agnesConfig.modelId),
+                value: "agnes:default",
               },
             ],
           });
@@ -176,7 +204,17 @@ export const ControlPanel: React.FC = () => {
     // Listen for storage changes to update list dynamically (e.g. after adding token in settings)
     window.addEventListener("storage", updateModelOptions);
     return () => window.removeEventListener("storage", updateModelOptions);
-  }, [t, tokens, openaiConfig, googleConfig]);
+  }, [
+    t,
+    tokens,
+    openaiConfig,
+    googleConfig,
+    agnesConfig,
+    openaiImagenConfig,
+    googleImagenConfig,
+    openaiUseImagenMode,
+    googleUseImagenMode,
+  ]);
 
   // Determine current model configuration (Standard or Custom)
   const activeConfig = useMemo(() => {
@@ -249,7 +287,10 @@ export const ControlPanel: React.FC = () => {
   };
 
   // Construct current value for Select
-  const currentSelectValue = `${provider}:${model}`;
+  const currentSelectValue =
+    provider === "openai" || provider === "google" || provider === "agnes"
+      ? `${provider}:default`
+      : `${provider}:${model}`;
 
   return (
     <div className="space-y-4 md:space-y-6">

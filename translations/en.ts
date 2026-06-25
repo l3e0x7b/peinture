@@ -152,6 +152,10 @@ export const en = {
   provider_gitee: "Gitee AI",
   provider_modelscope: "Model Scope",
   provider_a4f: "A4F",
+  provider_agnes: "Agnes AI",
+  agnesTokenHelp: "Required. Provide multiple tokens. Get an",
+  agnesTokenLink: "API Key",
+  agnesTokenHelpEnd: "from the Agnes AI platform.",
   
   // Custom Providers
   add_provider: "Add Provider",
@@ -166,6 +170,15 @@ export const en = {
   fetch_status_failed: "Failed",
   no_models_found: "No models found",
   models_count: "{count} models found",
+
+  // Imagen API Mode
+  use_imagen_api: "Use Imagen API",
+  using_imagen_api: "Using Imagen API",
+  api_url_tool_call: "API URL (Tool Call)",
+  api_url_imagen: "API URL (Imagen)",
+  model_id_tool_call: "Model ID (Tool Call)",
+  model_id_imagen: "Model ID (Imagen)",
+  model_id_image: "Model ID (Image)",
 
   // Models Labels
   model_creation: "Creation Model",
@@ -192,6 +205,8 @@ export const en = {
   error_openai_token_exhausted: "All configured OpenAI tokens have exhausted their daily quota or are invalid.",
   error_google_token_required: "Google Gemini Token is required. Please set it in Settings.",
   error_google_token_exhausted: "All configured Google Gemini tokens have exhausted their daily quota or are invalid.",
+  error_agnes_token_required: "Agnes AI Token is required. Please set it in Settings.",
+  error_agnes_token_exhausted: "All configured Agnes AI tokens have exhausted their quota or are invalid.",
   error_api_connection: "API connection failed. Please check your network or token.",
   error_invalid_response: "Invalid response from the server.",
   error_prompt_optimization_failed: "Failed to optimize prompt. Please try again.",

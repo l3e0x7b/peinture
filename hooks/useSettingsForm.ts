@@ -52,8 +52,18 @@ export const useSettingsForm = (isOpen: boolean, onClose: () => void) => {
     setProviderTokens,
     openaiConfig: initialOpenaiConfig,
     googleConfig: initialGoogleConfig,
+    agnesConfig: initialAgnesConfig,
+    openaiImagenConfig: initialOpenaiImagenConfig,
+    googleImagenConfig: initialGoogleImagenConfig,
+    openaiUseImagenMode: initialOpenaiUseImagenMode,
+    googleUseImagenMode: initialGoogleUseImagenMode,
     setOpenAIConfig,
     setGoogleConfig,
+    setAgnesConfig,
+    setOpenAIImagenConfig,
+    setGoogleImagenConfig,
+    setOpenAIUseImagenMode,
+    setGoogleUseImagenMode,
   } = useConfigStore();
 
   // Composed sub-hooks
@@ -70,6 +80,17 @@ export const useSettingsForm = (isOpen: boolean, onClose: () => void) => {
     useState(initialOpenaiConfig);
   const [googleConfigState, setGoogleConfigState] =
     useState(initialGoogleConfig);
+  const [agnesConfigState, setAgnesConfigState] =
+    useState(initialAgnesConfig);
+
+  const [openaiImagenConfigState, setOpenAIImagenConfigState] =
+    useState(initialOpenaiImagenConfig);
+  const [googleImagenConfigState, setGoogleImagenConfigState] =
+    useState(initialGoogleImagenConfig);
+  const [openaiUseImagenModeState, setOpenAIUseImagenModeState] =
+    useState(initialOpenaiUseImagenMode);
+  const [googleUseImagenModeState, setGoogleUseImagenModeState] =
+    useState(initialGoogleUseImagenMode);
 
   // Custom Providers
   const [customProviders, setCustomProviders] = useState<CustomProvider[]>([]);
@@ -153,6 +174,11 @@ export const useSettingsForm = (isOpen: boolean, onClose: () => void) => {
       // Pull latest config from store
       setOpenAIConfigState(useConfigStore.getState().openaiConfig);
       setGoogleConfigState(useConfigStore.getState().googleConfig);
+      setAgnesConfigState(useConfigStore.getState().agnesConfig);
+      setOpenAIImagenConfigState(useConfigStore.getState().openaiImagenConfig);
+      setGoogleImagenConfigState(useConfigStore.getState().googleImagenConfig);
+      setOpenAIUseImagenModeState(useConfigStore.getState().openaiUseImagenMode);
+      setGoogleUseImagenModeState(useConfigStore.getState().googleUseImagenMode);
 
       // Initialize composed sub-hooks
       tokensForm.initializeTokens();
@@ -253,6 +279,13 @@ export const useSettingsForm = (isOpen: boolean, onClose: () => void) => {
           baseList
             .filter((m) => m.provider === "google")
             .forEach((m) => valid.add(m.value));
+        if (
+          tokensForm.agnesToken ||
+          useConfigStore.getState().tokens.agnes?.length > 0
+        )
+          baseList
+            .filter((m) => m.provider === "agnes")
+            .forEach((m) => valid.add(m.value));
       }
 
       if (isServer) {
@@ -338,6 +371,7 @@ export const useSettingsForm = (isOpen: boolean, onClose: () => void) => {
     tokensForm.a4fToken,
     tokensForm.giteeToken,
     tokensForm.googleToken,
+    tokensForm.agnesToken,
     tokensForm.msToken,
     tokensForm.openaiToken,
     upscalerModelValue,
@@ -443,9 +477,15 @@ export const useSettingsForm = (isOpen: boolean, onClose: () => void) => {
     setProviderTokens("a4f", tokensForm.a4fToken);
     setProviderTokens("openai", tokensForm.openaiToken);
     setProviderTokens("google", tokensForm.googleToken);
+    setProviderTokens("agnes", tokensForm.agnesToken);
 
     setOpenAIConfig(openaiConfigState);
     setGoogleConfig(googleConfigState);
+    setAgnesConfig(agnesConfigState);
+    setOpenAIImagenConfig(openaiImagenConfigState);
+    setGoogleImagenConfig(googleImagenConfigState);
+    setOpenAIUseImagenMode(openaiUseImagenModeState);
+    setGoogleUseImagenMode(googleUseImagenModeState);
 
     saveSystemPromptContent(systemPrompt);
     saveTranslationPromptContent(translationPrompt);
@@ -491,6 +531,17 @@ export const useSettingsForm = (isOpen: boolean, onClose: () => void) => {
     setOpenaiConfig: setOpenAIConfigState,
     googleConfig: googleConfigState,
     setGoogleConfig: setGoogleConfigState,
+    agnesConfig: agnesConfigState,
+    setAgnesConfig: setAgnesConfigState,
+
+    openaiImagenConfig: openaiImagenConfigState,
+    setOpenaiImagenConfig: setOpenAIImagenConfigState,
+    googleImagenConfig: googleImagenConfigState,
+    setGoogleImagenConfig: setGoogleImagenConfigState,
+    openaiUseImagenMode: openaiUseImagenModeState,
+    setOpenaiUseImagenMode: setOpenAIUseImagenModeState,
+    googleUseImagenMode: googleUseImagenModeState,
+    setGoogleUseImagenMode: setGoogleUseImagenModeState,
 
     newProviderName,
     setNewProviderName,

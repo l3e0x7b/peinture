@@ -18,10 +18,35 @@ import {
   editImageCustom,
   optimizePromptCustom,
 } from "../services/customService";
-import { generateOpenAIImage } from "../services/openaiService";
-import { generateGoogleImage } from "../services/googleService";
+import {
+  generateOpenAIImage,
+  editOpenAIImagenImage,
+} from "../services/openaiService";
+import {
+  generateGoogleImage,
+  editGoogleImagenImage,
+} from "../services/googleService";
+import {
+  generateAgnesImage,
+  optimizePromptAgnes,
+} from "../services/agnesService";
 import { optimizeEditPrompt } from "../services/utils";
 import { saveTempFileToOPFS } from "../services/storageService";
+import { useConfigStore } from "../store/configStore";
+
+// Helper function to convert blobs to base64
+const blobToBase64Array = (blobs: Blob[]): Promise<string[]> => {
+  return Promise.all(
+    blobs.map(
+      (blob) =>
+        new Promise<string>((resolve) => {
+          const reader = new FileReader();
+          reader.onloadend = () => resolve(reader.result as string);
+          reader.readAsDataURL(blob);
+        })
+    )
+  );
+};
 
 export const useEditorGeneration = (
   image: HTMLImageElement | null,
@@ -36,6 +61,12 @@ export const useEditorGeneration = (
   const { prompt, setPrompt, attachedImages } = useEditorStore();
   const { language, provider } = useSettingsStore();
   const { isUploading } = useUIStore();
+  const openaiUseImagenMode = useConfigStore(
+    (state) => state.openaiUseImagenMode,
+  );
+  const googleUseImagenMode = useConfigStore(
+    (state) => state.googleUseImagenMode,
+  );
   const t = translations[language];
 
   const [isGenerating, setIsGenerating] = useState(false);
@@ -125,6 +156,8 @@ export const useEditorGeneration = (
         optimized = await optimizePromptGitee(prompt, textConfig.model);
       } else if (textConfig.provider === "modelscope") {
         optimized = await optimizePromptMS(prompt, textConfig.model);
+      } else if (textConfig.provider === "agnes") {
+        optimized = await optimizePromptAgnes(prompt, textConfig.model);
       } else {
         const customProviders = getCustomProviders();
         const activeCustom = customProviders.find(
@@ -240,41 +273,59 @@ export const useEditorGeneration = (
           controller.signal,
         );
       } else if (activeProvider === "openai") {
-        // Convert all blobs to base64
-        const base64Images = await Promise.all(
-          imageBlobs.map(
-            (blob) =>
-              new Promise<string>((resolve) => {
-                const reader = new FileReader();
-                reader.onloadend = () => resolve(reader.result as string);
-                reader.readAsDataURL(blob);
-              })
-          )
-        );
-        const genResult = await generateOpenAIImage(
-          config.model as any,
-          finalPrompt,
-          "1:1",
-          undefined,
-          undefined,
-          false,
-          undefined,
-          base64Images
-        );
-        result = { url: genResult.url };
+        const base64Images = await blobToBase64Array(imageBlobs);
+
+        if (openaiUseImagenMode) {
+          // Use first image for imagen edit mode
+          const genResult = await editOpenAIImagenImage(
+            config.model as any,
+            finalPrompt,
+            base64Images[0],
+            "1:1",
+            false,
+          );
+          result = { url: genResult.url };
+        } else {
+          const genResult = await generateOpenAIImage(
+            config.model as any,
+            finalPrompt,
+            "1:1",
+            undefined,
+            undefined,
+            false,
+            undefined,
+            base64Images
+          );
+          result = { url: genResult.url };
+        }
       } else if (activeProvider === "google") {
-        // Convert all blobs to base64
-        const base64Images = await Promise.all(
-          imageBlobs.map(
-            (blob) =>
-              new Promise<string>((resolve) => {
-                const reader = new FileReader();
-                reader.onloadend = () => resolve(reader.result as string);
-                reader.readAsDataURL(blob);
-              })
-          )
-        );
-        const genResult = await generateGoogleImage(
+        const base64Images = await blobToBase64Array(imageBlobs);
+
+        if (googleUseImagenMode) {
+          // Use first image for imagen edit mode
+          const genResult = await editGoogleImagenImage(
+            config.model as any,
+            finalPrompt,
+            base64Images[0],
+            "1:1",
+          );
+          result = { url: genResult.url };
+        } else {
+          const genResult = await generateGoogleImage(
+            config.model as any,
+            finalPrompt,
+            "1:1",
+            undefined,
+            undefined,
+            false,
+            undefined,
+            base64Images
+          );
+          result = { url: genResult.url };
+        }
+      } else if (activeProvider === "agnes") {
+        const base64Images = await blobToBase64Array(imageBlobs);
+        const genResult = await generateAgnesImage(
           config.model as any,
           finalPrompt,
           "1:1",
@@ -282,7 +333,7 @@ export const useEditorGeneration = (
           undefined,
           false,
           undefined,
-          base64Images
+          base64Images,
         );
         result = { url: genResult.url };
       } else {

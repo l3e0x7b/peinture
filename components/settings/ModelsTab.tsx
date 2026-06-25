@@ -19,8 +19,10 @@ interface ModelsTabProps {
   a4fToken: string;
   openaiToken: string;
   googleToken: string;
+  agnesToken: string;
   openaiConfig: { apiUrl: string; modelId: string };
   googleConfig: { apiUrl: string; modelId: string };
+  agnesConfig: { apiUrl: string; modelId: string };
   customProviders: CustomProvider[];
   editModelValue: string;
   setEditModelValue: (v: string) => void;
@@ -105,6 +107,20 @@ export const ModelsTab: React.FC<ModelsTabProps> = (props) => {
           .map((m) => ({ value: m.value, label: props.googleConfig.modelId ? toPascalCaseWithSpace(props.googleConfig.modelId) : cleanLabel(m.label) }));
         if (googleOptions.length > 0)
           groups.push({ label: "Google", options: googleOptions });
+      }
+
+      if (props.agnesToken || useConfigStore.getState().tokens.agnes?.length > 0) {
+        const agnesOptions = baseList
+          .filter((m) => m.provider === "agnes")
+          .map((m) => ({
+            value: m.value,
+            label:
+              type === "edit" && props.agnesConfig.modelId
+                ? toPascalCaseWithSpace(props.agnesConfig.modelId)
+                : cleanLabel(m.label),
+          }));
+        if (agnesOptions.length > 0)
+          groups.push({ label: "Agnes AI", options: agnesOptions });
       }
     }
 

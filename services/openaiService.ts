@@ -14,6 +14,205 @@ const runWithOpenAITokenRetry = <T>(
   );
 };
 
+// Helper to handle OpenAI API errors
+const handleOpenAIApiError = async (response: Response, operationType: string): Promise<never> => {
+  const errData = await response.json().catch(() => ({}));
+  throw new Error(
+    errData.error?.message || `OpenAI ${operationType} API Error: ${response.status}`
+  );
+};
+
+const isGptImageModel = (model: string): boolean =>
+  model.toLowerCase().startsWith("gpt-image");
+
+const isDallE2Model = (model: string): boolean =>
+  model.toLowerCase().startsWith("dall-e-2");
+
+// Helper function to convert aspect ratio to OpenAI-supported size format
+const aspectRatioToOpenAISize = (
+  aspectRatio: AspectRatioOption,
+  model: string,
+): string => {
+  if (aspectRatio === "1:1" || isDallE2Model(model)) return "1024x1024";
+
+  const landscapeRatios: AspectRatioOption[] = ["16:9", "3:2", "4:3", "5:4"];
+  const isLandscape = landscapeRatios.includes(aspectRatio);
+
+  if (isGptImageModel(model)) {
+    return isLandscape ? "1536x1024" : "1024x1536";
+  }
+
+  return isLandscape ? "1792x1024" : "1024x1792";
+};
+
+const openAIImageQuality = (model: string, enableHD: boolean): string =>
+  isGptImageModel(model) ? (enableHD ? "high" : "medium") : enableHD ? "hd" : "standard";
+
+const extractOpenAIImageUrl = (entry: any): string | undefined => {
+  if (typeof entry?.url === "string") return entry.url;
+  if (typeof entry?.b64_json === "string") {
+    return `data:image/png;base64,${entry.b64_json.replace(/^data:image\/\w+;base64,/, "")}`;
+  }
+  return undefined;
+};
+
+// Helper to convert base64 to Blob for multipart uploads
+const base64ToBlob = (base64: string, mimeType = "image/png"): Blob => {
+  const base64Data = base64.replace(/^data:image\/\w+;base64,/, "");
+  const byteCharacters = atob(base64Data);
+  const byteArray = new Uint8Array(byteCharacters.length);
+  for (let i = 0; i < byteCharacters.length; i++) {
+    byteArray[i] = byteCharacters.charCodeAt(i);
+  }
+  return new Blob([byteArray], { type: mimeType });
+};
+
+export const generateOpenAIImagenImage = async (
+  model: string,
+  prompt: string,
+  aspectRatio: AspectRatioOption,
+  enableHD: boolean = false,
+  seed?: number,
+): Promise<GeneratedImage> => {
+  return runWithOpenAITokenRetry(async (token) => {
+    try {
+      const { openaiImagenConfig } = useConfigStore.getState();
+      const baseUrl =
+        openaiImagenConfig.apiUrl || "https://api.openai.com/v1/images";
+      const actualModel =
+        model === "default" ? openaiImagenConfig.modelId : model;
+
+      const size = aspectRatioToOpenAISize(aspectRatio, actualModel);
+      const quality = openAIImageQuality(actualModel, enableHD);
+
+      const requestBody: Record<string, unknown> = {
+        model: actualModel,
+        prompt,
+        size,
+        quality,
+        n: 1,
+      };
+      if (!isGptImageModel(actualModel)) requestBody.response_format = "url";
+
+      const response = await fetch(`${baseUrl}/generations`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify(requestBody),
+      });
+
+      if (!response.ok) {
+        await handleOpenAIApiError(response, "Imagen");
+      }
+
+      const data = await response.json();
+
+      if (!data.data || data.data.length === 0) {
+        throw new Error("error_invalid_response");
+      }
+
+      const imageUrl = extractOpenAIImageUrl(data.data[0]);
+      if (!imageUrl) {
+        throw new Error("error_invalid_response");
+      }
+      const revisedPrompt = data.data[0].revised_prompt;
+
+      return {
+        id: generateUUID(),
+        url: imageUrl,
+        model: actualModel,
+        prompt,
+        aspectRatio,
+        timestamp: Date.now(),
+        seed,
+        provider: "openai",
+        revised_prompt: revisedPrompt,
+      };
+    } catch (error) {
+      console.error("[OpenAI Imagen] Generation Error:", error);
+      throw error;
+    }
+  });
+};
+
+export const editOpenAIImagenImage = async (
+  model: string,
+  prompt: string,
+  base64Image: string,
+  aspectRatio: AspectRatioOption,
+  enableHD: boolean = false,
+  maskImage?: string,
+): Promise<GeneratedImage> => {
+  return runWithOpenAITokenRetry(async (token) => {
+    try {
+      const { openaiImagenConfig } = useConfigStore.getState();
+      const baseUrl =
+        openaiImagenConfig.apiUrl || "https://api.openai.com/v1/images";
+      const actualModel =
+        model === "default" ? openaiImagenConfig.modelId : model;
+
+      const size = aspectRatioToOpenAISize(aspectRatio, actualModel);
+
+      // Convert base64 to Blob
+      const imageBlob = base64ToBlob(base64Image);
+
+      // Create multipart form data
+      const formData = new FormData();
+      formData.append("image", imageBlob, "image.png");
+      formData.append("prompt", prompt);
+      formData.append("model", actualModel);
+      formData.append("size", size);
+      formData.append("n", "1");
+      formData.append("quality", openAIImageQuality(actualModel, enableHD));
+
+      if (maskImage) {
+        const maskBlob = base64ToBlob(maskImage);
+        formData.append("mask", maskBlob, "mask.png");
+      }
+
+      const response = await fetch(`${baseUrl}/edits`, {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+        body: formData,
+      });
+
+      if (!response.ok) {
+        await handleOpenAIApiError(response, "Imagen Edit");
+      }
+
+      const data = await response.json();
+
+      if (!data.data || data.data.length === 0) {
+        throw new Error("error_invalid_response");
+      }
+
+      const imageUrl = extractOpenAIImageUrl(data.data[0]);
+      if (!imageUrl) {
+        throw new Error("error_invalid_response");
+      }
+      const revisedPrompt = data.data[0].revised_prompt;
+
+      return {
+        id: generateUUID(),
+        url: imageUrl,
+        model: actualModel,
+        prompt,
+        aspectRatio,
+        timestamp: Date.now(),
+        provider: "openai",
+        revised_prompt: revisedPrompt,
+      };
+    } catch (error) {
+      console.error("[OpenAI Imagen] Edit Error:", error);
+      throw error;
+    }
+  });
+};
+
 export const generateOpenAIImage = async (
   model: ModelOption,
   prompt: string,

@@ -25,6 +25,7 @@ import {
   getCustomTaskStatus,
 } from "../services/customService";
 import { getGiteeTaskStatus } from "../services/giteeService";
+import { getAgnesTaskStatus } from "../services/agnesService";
 import {
   HF_MODEL_OPTIONS,
   GITEE_MODEL_OPTIONS,
@@ -276,6 +277,8 @@ export const useAppInit = () => {
             let result = null;
             if (img.videoProvider === "gitee") {
               result = await getGiteeTaskStatus(img.videoTaskId);
+            } else if (img.videoProvider === "agnes") {
+              result = await getAgnesTaskStatus(img.videoTaskId);
             } else if (img.videoProvider) {
               const customProviders = getCustomProviders();
               const provider = customProviders.find(

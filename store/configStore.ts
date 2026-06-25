@@ -53,6 +53,12 @@ export interface ConfigState {
 
   openaiConfig: { apiUrl: string; modelId: string };
   googleConfig: { apiUrl: string; modelId: string };
+  agnesConfig: { apiUrl: string; modelId: string };
+
+  openaiImagenConfig: { apiUrl: string; modelId: string };
+  googleImagenConfig: { apiUrl: string; modelId: string };
+  openaiUseImagenMode: boolean;
+  googleUseImagenMode: boolean;
 
   videoSettings: Record<string, VideoSettings>;
   customProviders: CustomProvider[];
@@ -73,6 +79,12 @@ export interface ConfigState {
 
   setOpenAIConfig: (val: { apiUrl: string; modelId: string }) => void;
   setGoogleConfig: (val: { apiUrl: string; modelId: string }) => void;
+  setAgnesConfig: (val: { apiUrl: string; modelId: string }) => void;
+
+  setOpenAIImagenConfig: (val: { apiUrl: string; modelId: string }) => void;
+  setGoogleImagenConfig: (val: { apiUrl: string; modelId: string }) => void;
+  setOpenAIUseImagenMode: (enabled: boolean) => void;
+  setGoogleUseImagenMode: (enabled: boolean) => void;
 
   setEditModelConfig: (val: { provider: string; model: string }) => void;
   setLiveModelConfig: (val: { provider: string; model: string }) => void;
@@ -119,6 +131,21 @@ export const useConfigStore = create<ConfigState>()(
         apiUrl: "https://generativelanguage.googleapis.com/v1beta/models",
         modelId: "gemini-3.1-flash-image-preview",
       },
+      agnesConfig: {
+        apiUrl: "https://apihub.agnes-ai.com/v1",
+        modelId: "agnes-image-2.1-flash",
+      },
+
+      openaiImagenConfig: {
+        apiUrl: "https://api.openai.com/v1/images",
+        modelId: "gpt-image-1",
+      },
+      googleImagenConfig: {
+        apiUrl: "https://generativelanguage.googleapis.com/v1beta/models",
+        modelId: "imagen-3.0-generate-001",
+      },
+      openaiUseImagenMode: false,
+      googleUseImagenMode: false,
 
       videoSettings: {},
       customProviders: [],
@@ -132,6 +159,7 @@ export const useConfigStore = create<ConfigState>()(
         a4f: [],
         openai: [],
         google: [],
+        agnes: [],
       },
       tokenStatus: {
         huggingface: { date: getUTCDatesString(), exhausted: {} },
@@ -140,6 +168,7 @@ export const useConfigStore = create<ConfigState>()(
         a4f: { date: getUTCDatesString(), exhausted: {} },
         openai: { date: getUTCDatesString(), exhausted: {} },
         google: { date: getUTCDatesString(), exhausted: {} },
+        agnes: { date: getUTCDatesString(), exhausted: {} },
       },
 
       setServiceMode: (serviceMode) => set({ serviceMode }),
@@ -158,6 +187,12 @@ export const useConfigStore = create<ConfigState>()(
 
       setOpenAIConfig: (openaiConfig) => set({ openaiConfig }),
       setGoogleConfig: (googleConfig) => set({ googleConfig }),
+      setAgnesConfig: (agnesConfig) => set({ agnesConfig }),
+
+      setOpenAIImagenConfig: (openaiImagenConfig) => set({ openaiImagenConfig }),
+      setGoogleImagenConfig: (googleImagenConfig) => set({ googleImagenConfig }),
+      setOpenAIUseImagenMode: (openaiUseImagenMode) => set({ openaiUseImagenMode }),
+      setGoogleUseImagenMode: (googleUseImagenMode) => set({ googleUseImagenMode }),
 
       setVideoSettings: (provider, settings) =>
         set((state) => ({

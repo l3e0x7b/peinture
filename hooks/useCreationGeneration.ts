@@ -20,8 +20,19 @@ import {
   optimizePrompt as optimizePromptHF,
 } from "../services/hfService";
 import { generateA4FImage, optimizePromptA4F } from "../services/a4fService";
-import { generateOpenAIImage } from "../services/openaiService";
-import { generateGoogleImage } from "../services/googleService";
+import {
+  generateOpenAIImage,
+  generateOpenAIImagenImage,
+} from "../services/openaiService";
+import {
+  generateGoogleImage,
+  generateGoogleImagenImage,
+} from "../services/googleService";
+import {
+  generateAgnesImage,
+  generateAgnesVideo,
+  optimizePromptAgnes,
+} from "../services/agnesService";
 import {
   generateCustomImage,
   generateCustomVideo,
@@ -50,6 +61,7 @@ import {
   getGuidanceScaleConfig,
   LIVE_MODELS,
 } from "../constants";
+import { useConfigStore } from "../store/configStore";
 
 /**
  * Hook that encapsulates all image/video generation logic for CreationView.
@@ -81,6 +93,13 @@ export const useCreationGeneration = () => {
     imageDimensions,
     setImageDimensions,
   } = useUIStore();
+
+  const openaiUseImagenMode = useConfigStore(
+    (state) => state.openaiUseImagenMode,
+  );
+  const googleUseImagenMode = useConfigStore(
+    (state) => state.googleUseImagenMode,
+  );
 
   const currentImage = useCurrentImage();
   const setCurrentImage = useSetCurrentImage();
@@ -160,18 +179,49 @@ export const useCreationGeneration = () => {
           currentGuidanceScale,
         );
       } else if (provider === "openai") {
-        result = await generateOpenAIImage(
-          model,
-          finalPrompt,
-          aspectRatio,
-          seedNumber,
-          steps,
-          requestHD,
-          currentGuidanceScale,
-        );
+        if (openaiUseImagenMode) {
+          result = await generateOpenAIImagenImage(
+            "default",
+            finalPrompt,
+            aspectRatio,
+            requestHD,
+            seedNumber,
+          );
+        } else {
+          result = await generateOpenAIImage(
+            "default",
+            finalPrompt,
+            aspectRatio,
+            seedNumber,
+            steps,
+            requestHD,
+            currentGuidanceScale,
+          );
+        }
       } else if (provider === "google") {
-        result = await generateGoogleImage(
-          model,
+        if (googleUseImagenMode) {
+          result = await generateGoogleImagenImage(
+            "default",
+            finalPrompt,
+            aspectRatio,
+            requestHD,
+            seedNumber,
+            currentGuidanceScale,
+          );
+        } else {
+          result = await generateGoogleImage(
+            "default",
+            finalPrompt,
+            aspectRatio,
+            seedNumber,
+            steps,
+            requestHD,
+            currentGuidanceScale,
+          );
+        }
+      } else if (provider === "agnes") {
+        result = await generateAgnesImage(
+          "default",
           finalPrompt,
           aspectRatio,
           seedNumber,
@@ -270,6 +320,8 @@ export const useCreationGeneration = () => {
         optimized = await optimizePromptA4F(prompt, config.model);
       else if (config.provider === "huggingface")
         optimized = await optimizePromptHF(prompt, config.model);
+      else if (config.provider === "agnes")
+        optimized = await optimizePromptAgnes(prompt, config.model);
       else {
         const customProviders = getCustomProviders();
         const activeProvider = customProviders.find(
@@ -421,6 +473,42 @@ export const useCreationGeneration = () => {
         );
         if (useUIStore.getState().currentImageId === successImage.id)
           setIsLiveMode(true);
+      } else if (currentVideoProvider === "agnes") {
+        const settings = getVideoSettings(currentVideoProvider);
+        // Agnes requires the input frame as a public URL or Data URI Base64.
+        const blob =
+          typeof imageInput === "string"
+            ? await fetchBlob(imageInput)
+            : imageInput;
+        const imageDataUrl = await new Promise<string>((resolve, reject) => {
+          const reader = new FileReader();
+          reader.onloadend = () => resolve(reader.result as string);
+          reader.onerror = reject;
+          reader.readAsDataURL(blob);
+        });
+
+        const result = await generateAgnesVideo(
+          liveConfig.model,
+          imageDataUrl,
+          settings.prompt,
+          settings.duration,
+          currentImage.seed ?? 42,
+          24,
+          width,
+          height,
+        );
+        const taskId = result.videoId || result.taskId;
+        if (!taskId) throw new Error("Invalid response from video provider");
+        const nextPollTime = Date.now() + 30 * 1000;
+        const taskedImage = {
+          ...loadingImage,
+          videoTaskId: taskId,
+          videoNextPollTime: nextPollTime,
+        } as GeneratedImage;
+        setCurrentImage(taskedImage);
+        setHistory((prev) =>
+          prev.map((img) => (img.id === taskedImage.id ? taskedImage : img)),
+        );
       } else {
         const activeProvider = customProviders.find(
           (p) => p.id === currentVideoProvider,

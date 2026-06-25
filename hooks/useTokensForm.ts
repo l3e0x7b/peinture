@@ -4,7 +4,7 @@ import { useConfigStore } from "../store/configStore";
 
 /**
  * Manages token-related form state for the settings dialog.
- * Handles HuggingFace, Gitee, ModelScope, and A4F tokens along with their stats.
+ * Handles HuggingFace, Gitee, ModelScope, A4F, OpenAI, Google, and Agnes tokens along with their stats.
  */
 export const useTokensForm = () => {
   const { tokens, tokenStatus } = useConfigStore();
@@ -16,6 +16,7 @@ export const useTokensForm = () => {
   const [a4fToken, setA4FToken] = useState("");
   const [openaiToken, setOpenaiToken] = useState("");
   const [googleToken, setGoogleToken] = useState("");
+  const [agnesToken, setAgnesToken] = useState("");
 
   const calculateStats = useCallback(
     (tokensList: string[], providerId: ProviderId) => {
@@ -49,6 +50,9 @@ export const useTokensForm = () => {
 
     const googleTokens = tokens.google || [];
     setGoogleToken(googleTokens.join(","));
+
+    const agnesTokens = tokens.agnes || [];
+    setAgnesToken(agnesTokens.join(","));
   }, [tokens]);
 
   const updateToken = (type: ProviderId, value: string) => {
@@ -64,6 +68,8 @@ export const useTokensForm = () => {
       setOpenaiToken(value);
     } else if (type === "google") {
       setGoogleToken(value);
+    } else if (type === "agnes") {
+      setAgnesToken(value);
     }
   };
 
@@ -91,6 +97,10 @@ export const useTokensForm = () => {
     () => calculateStats(tokens.google || [], "google"),
     [calculateStats, tokens.google],
   );
+  const agnesStats = useMemo(
+    () => calculateStats(tokens.agnes || [], "agnes"),
+    [calculateStats, tokens.agnes],
+  );
 
   return {
     token,
@@ -105,6 +115,8 @@ export const useTokensForm = () => {
     openaiStats,
     googleToken,
     googleStats,
+    agnesToken,
+    agnesStats,
     updateToken,
     initializeTokens,
   };
