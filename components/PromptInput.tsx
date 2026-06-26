@@ -1,9 +1,10 @@
 import React, { useState, useRef, useEffect } from "react";
-import { History, Languages, Loader2, Wand2 } from "lucide-react";
+import { History, Languages, Loader2, Wand2, SquarePen } from "lucide-react";
 import { Tooltip } from "./Tooltip";
 import { useSettingsStore } from "../store/settingsStore";
 import { useUIStore } from "../store/uiStore";
 import { translations } from "../translations";
+import { PromptEditorModal } from "./PromptEditorModal";
 
 interface PromptInputProps {
   onOptimize: () => void;
@@ -23,6 +24,7 @@ export const PromptInput: React.FC<PromptInputProps> = ({ onOptimize }) => {
     }
   });
   const [showPromptHistory, setShowPromptHistory] = useState<boolean>(false);
+  const [showEditor, setShowEditor] = useState<boolean>(false);
   const promptHistoryRef = useRef<HTMLDivElement>(null);
 
   // Refresh history from storage periodically or on mount/focus to check updates from App.tsx
@@ -65,8 +67,8 @@ export const PromptInput: React.FC<PromptInputProps> = ({ onOptimize }) => {
             {t.prompt}
           </label>
 
-          {/* History Prompt Button */}
-          <div className="relative" ref={promptHistoryRef}>
+          {/* History & Editor Buttons */}
+          <div className="relative flex items-center" ref={promptHistoryRef}>
             <Tooltip content={t.promptHistory}>
               <button
                 onClick={(e) => {
@@ -78,6 +80,16 @@ export const PromptInput: React.FC<PromptInputProps> = ({ onOptimize }) => {
                 type="button"
               >
                 <History className="w-4 h-4" />
+              </button>
+            </Tooltip>
+
+            <Tooltip content={t.editPrompt}>
+              <button
+                onClick={() => setShowEditor(true)}
+                className="flex items-center justify-center h-7 w-7 rounded-lg text-white/60 hover:text-white hover:bg-white/10 transition-all border border-transparent hover:border-white/10 animate-in fade-in zoom-in-0 duration-300"
+                type="button"
+              >
+                <SquarePen className="w-4 h-4" />
               </button>
             </Tooltip>
 
@@ -157,6 +169,15 @@ export const PromptInput: React.FC<PromptInputProps> = ({ onOptimize }) => {
         className="form-input w-full min-w-0 resize-y overflow-y-auto rounded-lg text-white/90 focus:outline-0 focus:ring-2 focus:ring-purple-500/50 border border-white/10 bg-white/5 focus:border-purple-500 min-h-32 max-h-[420px] placeholder:text-white/30 p-4 text-base font-normal leading-normal transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
         placeholder={t.promptPlaceholder}
       />
+      {showEditor && (
+        <PromptEditorModal
+          initialPrompt={prompt}
+          onClose={(newPrompt) => {
+            if (newPrompt !== undefined) setPrompt(newPrompt);
+            setShowEditor(false);
+          }}
+        />
+      )}
     </div>
   );
 };

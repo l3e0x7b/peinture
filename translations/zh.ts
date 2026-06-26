@@ -67,6 +67,7 @@ export const zh = {
   discard: "取消更改",
   reset: "重置",
   promptHistory: "历史提示词",
+  editPrompt: "长提示词编辑",
   historyEmpty: "暂无历史记录",
   sourceCode: "开源代码",
   hdEnabled: "已启用高清模式",

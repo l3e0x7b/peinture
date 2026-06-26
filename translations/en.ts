@@ -67,6 +67,7 @@ export const en = {
   discard: "Discard",
   reset: "Reset",
   promptHistory: "Prompt History",
+  editPrompt: "Long Prompt Editor",
   historyEmpty: "No history available",
   sourceCode: "Source Code",
   hdEnabled: "High Definition Enabled",
