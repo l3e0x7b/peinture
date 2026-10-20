@@ -115,7 +115,7 @@ export const useConfigStore = create<ConfigState>()(
       systemPrompt: DEFAULT_SYSTEM_PROMPT,
       translationPrompt: DEFAULT_TRANSLATION_PROMPT,
 
-      editModelConfig: { provider: "huggingface", model: "qwen-image-edit" },
+      editModelConfig: { provider: "huggingface", model: "qwen-image-2.1" },
       liveModelConfig: { provider: "huggingface", model: "wan2_2-i2v" },
       textModelConfig: { provider: "huggingface", model: "openai-fast" },
       upscalerModelConfig: {

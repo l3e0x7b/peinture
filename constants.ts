@@ -5,7 +5,9 @@ export const API_MODEL_MAP: Record<ProviderOption, Record<string, string>> = {
   huggingface: {
     "z-image-turbo": "z-image-turbo",
     "z-image": "z-image",
-    "qwen-image": "qwen-image-fast",
+    "qwen-image": "qwen-image-fast", // legacy (no longer listed; kept for old history entries)
+    "qwen-image-2.1": "qwen-image-2.1",
+    "qwen-image-2.1-turbo": "qwen-image-2.1-turbo",
     "ovis-image": "ovis-image",
     "flux-1-schnell": "flux-1-schnell",
     "openai-fast": "openai-fast", // text
@@ -52,7 +54,8 @@ export const API_MODEL_MAP: Record<ProviderOption, Record<string, string>> = {
 export const HF_MODEL_OPTIONS = [
   { value: "z-image-turbo", label: "Z-Image Turbo" },
   { value: "z-image", label: "Z-Image" },
-  { value: "qwen-image", label: "Qwen Image" },
+  { value: "qwen-image-2.1", label: "Qwen Image 2.1" },
+  { value: "qwen-image-2.1-turbo", label: "Qwen Image 2.1 Turbo" },
   { value: "ovis-image", label: "Ovis Image" },
   { value: "flux-1-schnell", label: "FLUX.1 Schnell" },
 ];
@@ -122,7 +125,10 @@ export const getModelConfig = (
     if (model === "z-image-turbo") return { min: 1, max: 20, default: 9 };
     if (model === "z-image") return { min: 1, max: 100, default: 30 };
     if (model === "flux-1-schnell") return { min: 1, max: 50, default: 8 };
-    if (model === "qwen-image") return { min: 4, max: 28, default: 8 };
+    // Qwen Image 2.1 (mrfakename space): steps slider 10-60, default 40
+    if (model === "qwen-image-2.1") return { min: 10, max: 60, default: 40 };
+    // Qwen Image 2.1 Turbo (lpkramit space): fixed 8-step schedule, no steps param
+    if (model === "qwen-image-2.1-turbo") return null;
     if (model === "ovis-image") return { min: 1, max: 50, default: 20 };
   }
   return { min: 1, max: 20, default: 9 }; // fallback
@@ -149,6 +155,9 @@ export const getGuidanceScaleConfig = (
   } else if (provider === "huggingface") {
     if (model === "z-image")
       return { min: 1.5, max: 20, step: 0.5, default: 4 };
+    // Qwen Image 2.1: true CFG scale, only applied together with a negative prompt
+    if (model === "qwen-image-2.1")
+      return { min: 1, max: 6, step: 0.1, default: 1 };
   }
   return null;
 };
@@ -157,8 +166,8 @@ export const getGuidanceScaleConfig = (
 
 export const EDIT_MODELS: UnifiedModelOption[] = [
   {
-    label: "Qwen Image Edit",
-    value: "huggingface:qwen-image-edit",
+    label: "Qwen Image 2.1",
+    value: "huggingface:qwen-image-2.1",
     provider: "huggingface",
   },
   {

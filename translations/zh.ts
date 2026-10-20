@@ -75,6 +75,8 @@ export const zh = {
   advancedSettings: "高级参数",
   steps: "步数",
   guidanceScale: "提示词权重",
+  negativePrompt: "负向提示词",
+  negativePromptPlaceholder: "不希望出现的内容（可选）",
   autoTranslate: "自动翻译",
   translating: "翻译中...",
   live: "Live 图",

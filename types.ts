@@ -69,6 +69,8 @@ export type ModelOption =
     | "z-image-turbo" 
     | "z-image"
     | "qwen-image" 
+    | "qwen-image-2.1"
+    | "qwen-image-2.1-turbo"
     | "ovis-image" 
     | "flux-2"
     | "flux-1-schnell" 

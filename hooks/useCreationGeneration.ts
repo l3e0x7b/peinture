@@ -79,6 +79,7 @@ export const useCreationGeneration = () => {
     setSteps,
     guidanceScale,
     setGuidanceScale,
+    negativePrompt,
     autoTranslate,
     resetImagineParams,
   } = useSettingsStore();
@@ -167,6 +168,7 @@ export const useCreationGeneration = () => {
           requestHD,
           steps,
           currentGuidanceScale,
+          negativePrompt.trim() ? negativePrompt.trim() : undefined,
         );
       } else if (provider === "a4f") {
         result = await generateA4FImage(

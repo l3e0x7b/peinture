@@ -38,6 +38,8 @@ export const ControlPanel: React.FC = () => {
     setSteps,
     guidanceScale,
     setGuidanceScale,
+    negativePrompt,
+    setNegativePrompt,
     seed,
     setSeed,
     enableHD,
@@ -65,6 +67,13 @@ export const ControlPanel: React.FC = () => {
   const t = translations[language];
   const [isAdvancedOpen, setIsAdvancedOpen] = useState(false);
   const [modelOptions, setModelOptions] = useState<OptionGroup[]>([]);
+
+  // Qwen Image 2.1 family (Hugging Face): HD toggle maps to output resolution;
+  // negative prompt (true CFG) is supported by the normal 2.1 space only.
+  const isQwen21 =
+    provider === "huggingface" && model === "qwen-image-2.1";
+  const isQwen21Turbo =
+    provider === "huggingface" && model === "qwen-image-2.1-turbo";
 
   // Dynamic Aspect Ratio Options based on language
   const aspectRatioOptions = useMemo(
@@ -305,7 +314,10 @@ export const ControlPanel: React.FC = () => {
           <div className="flex items-center justify-between gap-8 animate-in fade-in duration-300">
             <ProviderStatsMiniWidget />
             
-            {(provider === "openai" || provider === "google") && (
+            {(provider === "openai" ||
+              provider === "google" ||
+              isQwen21 ||
+              isQwen21Turbo) && (
               <div className="flex items-center gap-2">
                 <span className="text-xs font-medium text-white/50">{t.hd}</span>
                 <Tooltip content={enableHD ? t.hdEnabled : t.hdDisabled}>
@@ -403,6 +415,27 @@ export const ControlPanel: React.FC = () => {
                       className="custom-range text-purple-500"
                     />
                   </div>
+                </div>
+              )}
+
+              {/* Negative Prompt - Qwen Image 2.1 only (enables true CFG) */}
+              {isQwen21 && (
+                <div className="group">
+                  <div className="flex items-center justify-between pb-2">
+                    <p className="text-white/80 text-sm font-medium">
+                      {t.negativePrompt}
+                    </p>
+                    <span className="text-white/40 text-xs">
+                      {t.seedOptional}
+                    </span>
+                  </div>
+                  <textarea
+                    value={negativePrompt}
+                    onChange={(e) => setNegativePrompt(e.target.value)}
+                    placeholder={t.negativePromptPlaceholder}
+                    rows={2}
+                    className="form-input w-full bg-white/5 border border-white/10 rounded-lg text-white/90 placeholder:text-white/30 text-xs px-2 py-2 resize-none focus:ring-2 focus:ring-purple-500/50 focus:border-purple-500 transition-all"
+                  />
                 </div>
               )}
 

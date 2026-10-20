@@ -32,7 +32,8 @@ export const getDefaultModelParams = (
       }
     } else {
       const fallback = getModelConfig(provider, model);
-      defaultSteps = fallback.default;
+      // Null means the model has fixed generation params (e.g. Qwen Image 2.1 Turbo)
+      defaultSteps = fallback ? fallback.default : 9;
       const fallbackGs = getGuidanceScaleConfig(model, provider);
       if (fallbackGs) {
         hasGs = true;
@@ -41,7 +42,7 @@ export const getDefaultModelParams = (
     }
   } else {
     const config = getModelConfig(provider, model);
-    defaultSteps = config.default;
+    defaultSteps = config ? config.default : 9;
     const gsConfig = getGuidanceScaleConfig(model, provider);
     if (gsConfig) {
       hasGs = true;

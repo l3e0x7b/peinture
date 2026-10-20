@@ -75,6 +75,8 @@ export const en = {
   advancedSettings: "Advanced Settings",
   steps: "Steps",
   guidanceScale: "Guidance Scale",
+  negativePrompt: "Negative Prompt",
+  negativePromptPlaceholder: "What to avoid (optional)",
   autoTranslate: "Auto Translate",
   translating: "Translating...",
   live: "Live",

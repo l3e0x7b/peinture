@@ -1,8 +1,10 @@
 // Import React to resolve namespace errors
 import React, { useState, useRef, useEffect } from "react";
+import { toast } from "sonner";
 import { useEditorStore } from "../store/editorStore";
 import { useSettingsStore } from "../store/settingsStore";
 import { useUIStore } from "../store/uiStore";
+import { resolveErrorMessage } from "../services/errorUtils";
 import {
   fetchBlob,
   downloadImage,
@@ -268,7 +270,7 @@ export const useEditorGeneration = (
           finalPrompt,
           width,
           height,
-          4,
+          40,
           1,
           controller.signal,
         );
@@ -357,7 +359,7 @@ export const useEditorGeneration = (
             finalPrompt,
             width,
             height,
-            4,
+            40,
             1,
             controller.signal,
           );
@@ -379,6 +381,9 @@ export const useEditorGeneration = (
     } catch (e: any) {
       if (e.name !== "AbortError") {
         console.error("Generation failed", e);
+        // Surface the failure in the UI too — a silent spinner reset left
+        // users with no idea why the edit did nothing.
+        toast.error(resolveErrorMessage(e, t, "generationFailed"));
       }
     } finally {
       setIsGenerating(false);
@@ -412,7 +417,7 @@ export const useEditorGeneration = (
       const metadata = {
         prompt: prompt,
         provider: provider,
-        model: "Qwen-Image-Edit",
+        model: "Qwen Image 2.1",
         timestamp: Date.now(),
       };
 

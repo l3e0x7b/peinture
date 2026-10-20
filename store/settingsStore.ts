@@ -12,6 +12,7 @@ export interface SettingsState {
   seed: string;
   steps: number;
   guidanceScale: number;
+  negativePrompt: string;
   autoTranslate: boolean;
   enableHD: boolean;
 
@@ -22,6 +23,7 @@ export interface SettingsState {
   setSeed: (seed: string) => void;
   setSteps: (steps: number) => void;
   setGuidanceScale: (scale: number) => void;
+  setNegativePrompt: (prompt: string) => void;
   setAutoTranslate: (enabled: boolean) => void;
   setEnableHD: (enabled: boolean) => void;
   resetImagineParams: () => void;
@@ -40,6 +42,7 @@ export const useSettingsStore = create<SettingsState>()(
       seed: "",
       steps: 9,
       guidanceScale: 3.5,
+      negativePrompt: "",
       autoTranslate: false,
       enableHD: false,
 
@@ -50,6 +53,7 @@ export const useSettingsStore = create<SettingsState>()(
       setSeed: (seed) => set({ seed }),
       setSteps: (steps) => set({ steps }),
       setGuidanceScale: (guidanceScale) => set({ guidanceScale }),
+      setNegativePrompt: (negativePrompt) => set({ negativePrompt }),
       setAutoTranslate: (autoTranslate) => set({ autoTranslate }),
       setEnableHD: (enableHD) => set({ enableHD }),
 
