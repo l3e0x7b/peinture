@@ -320,6 +320,8 @@ export const zh = {
   compare_original: "原图",
   compare_upscaled: "超清放大",
   compare_edited: "编辑后",
+  compare_view_slider: "拉杆对比",
+  compare_view_side: "并排对比",
 
   // Cloud Gallery
   gallery_title: "您的作品",

@@ -17,6 +17,8 @@ import {
   Cloud,
   Sparkles,
   Clock,
+  Columns2,
+  ChevronsLeftRight,
 } from "lucide-react";
 import { Tooltip } from "../components/Tooltip";
 import {
@@ -27,7 +29,10 @@ import {
   getS3Config,
 } from "../services/storageService";
 import { CloudFile } from "../types";
-import { ImageComparison } from "../components/ImageComparison";
+import {
+  ImageComparison,
+  type ComparisonLayout,
+} from "../components/ImageComparison";
 import { useSettingsStore } from "../store/settingsStore";
 import { useDataStore } from "../store/dataStore";
 import { translations } from "../translations";
@@ -169,6 +174,10 @@ export const ImageEditorView: React.FC<ImageEditorViewProps> = ({
   // Local UI State
   const [isDragOver, setIsDragOver] = useState(false);
   const [isSourceNSFW, setIsSourceNSFW] = useState(false);
+  // Comparison presentation. Defaults to the original slider interaction, which
+  // remains the better fit on small screens.
+  const [comparisonLayout, setComparisonLayout] =
+    useState<ComparisonLayout>("slider");
   const [contextMenu, setContextMenu] = useState<{
     x: number;
     y: number;
@@ -258,6 +267,7 @@ export const ImageEditorView: React.FC<ImageEditorViewProps> = ({
     resetCanvas();
     resetEditor();
     setGeneratedResult(null);
+    setComparisonLayout("slider");
     setIsSourceNSFW(false);
   };
 
@@ -305,7 +315,10 @@ export const ImageEditorView: React.FC<ImageEditorViewProps> = ({
         target.tagName === "INPUT" || target.tagName === "TEXTAREA";
 
       if (e.key === "Escape") {
-        if (generatedResult) setGeneratedResult(null);
+        if (generatedResult) {
+          setGeneratedResult(null);
+          setComparisonLayout("slider");
+        }
         else if (contextMenu) setContextMenu(null);
         else if (showShortcuts) setShowShortcuts(false);
         else if (showHistoryModal) setShowHistoryModal(false);
@@ -604,13 +617,47 @@ export const ImageEditorView: React.FC<ImageEditorViewProps> = ({
                 alt="Comparison"
                 labelBefore={t.compare_original}
                 labelAfter={t.compare_edited}
+                layout={comparisonLayout}
+                onLayoutChange={setComparisonLayout}
+                hideLayoutToggle
               />
               <div className="absolute bottom-6 inset-x-0 flex justify-center pointer-events-none z-40">
                 <div className="pointer-events-auto max-w-[90%] overflow-x-auto scrollbar-hide rounded-2xl bg-black/60 backdrop-blur-md border border-white/10 shadow-2xl animate-in slide-in-from-bottom-4 duration-300">
                   <div className="flex items-center gap-1 p-1.5 min-w-max">
+                    <Tooltip
+                      content={
+                        comparisonLayout === "slider"
+                          ? t.compare_view_side
+                          : t.compare_view_slider
+                      }
+                    >
+                      <button
+                        onClick={() =>
+                          setComparisonLayout((prev) =>
+                            prev === "slider" ? "side-by-side" : "slider",
+                          )
+                        }
+                        aria-label={
+                          comparisonLayout === "slider"
+                            ? t.compare_view_side
+                            : t.compare_view_slider
+                        }
+                        className="flex items-center justify-center w-10 h-10 rounded-xl text-white/70 hover:text-cyan-400 hover:bg-cyan-500/10 transition-all"
+                      >
+                        {comparisonLayout === "slider" ? (
+                          <Columns2 className="w-5 h-5" />
+                        ) : (
+                          <ChevronsLeftRight className="w-5 h-5" />
+                        )}
+                      </button>
+                    </Tooltip>
+                    <div className="w-px h-5 bg-white/10 mx-1"></div>
                     <Tooltip content={t.re_edit}>
                       <button
-                        onClick={() => setGeneratedResult(null)}
+                        onClick={() => {
+                          setGeneratedResult(null);
+                          setComparisonLayout("slider");
+                        }}
                         className="flex items-center justify-center w-10 h-10 rounded-xl text-white/70 hover:text-purple-400 hover:bg-white/10 transition-all"
                       >
                         <RotateCcw className="w-5 h-5" />

@@ -320,6 +320,8 @@ export const en = {
   compare_original: "Original",
   compare_upscaled: "Upscaled 4x",
   compare_edited: "Edited",
+  compare_view_slider: "Slider",
+  compare_view_side: "Side by side",
 
   // Cloud Gallery
   gallery_title: "Your Creations",
