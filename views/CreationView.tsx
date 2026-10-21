@@ -194,7 +194,14 @@ export const CreationView: React.FC = () => {
           )}
         </div>
 
-        <HistoryGallery onSelect={handleHistorySelect} />
+        <HistoryGallery
+          onSelect={handleHistorySelect}
+          onOpenViewer={(image) => {
+            // Keep Live/Image mode in sync with the target before opening.
+            handleHistorySelect(image);
+            setIsViewerOpen(true);
+          }}
+        />
       </div>
 
       {currentImage && isViewerOpen && (

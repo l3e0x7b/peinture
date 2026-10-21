@@ -1,17 +1,31 @@
 import React, { useRef, useState, useEffect } from "react";
 import { GeneratedImage } from "../types";
-import { ChevronLeft, ChevronRight, Film, Loader2 } from "lucide-react";
+import {
+  ChevronLeft,
+  ChevronRight,
+  Film,
+  Loader2,
+  Maximize2,
+} from "lucide-react";
 import { useDataStore } from "../store/dataStore";
 import { useUIStore } from "../store/uiStore";
+import { useSettingsStore } from "../store/settingsStore";
+import { translations } from "../translations";
 import { ImageSkeleton } from "./Skeleton";
 
 interface HistoryGalleryProps {
   onSelect: (image: GeneratedImage) => void;
+  onOpenViewer: (image: GeneratedImage) => void;
 }
 
-export const HistoryGallery: React.FC<HistoryGalleryProps> = ({ onSelect }) => {
+export const HistoryGallery: React.FC<HistoryGalleryProps> = ({
+  onSelect,
+  onOpenViewer,
+}) => {
   const { history } = useDataStore();
   const { currentImageId: selectedId, isLoading, isOpfsHydrated } = useUIStore();
+  const { language } = useSettingsStore();
+  const t = translations[language];
 
   const scrollContainerRef = useRef<HTMLDivElement>(null);
   const [canScrollLeft, setCanScrollLeft] = useState(false);
@@ -115,6 +129,24 @@ export const HistoryGallery: React.FC<HistoryGalleryProps> = ({ onSelect }) => {
                   <div className="absolute inset-0 bg-black/40 flex items-center justify-center">
                     <Loader2 className="w-6 h-6 text-white/80 animate-spin" />
                   </div>
+                )}
+
+                {/* View Original — only while waiting, and only on the selected
+                    thumbnail. Placed after the generating overlay so it stays
+                    clickable, hence the explicit z-index. */}
+                {isLoading && selectedId === img.id && (
+                  <button
+                    type="button"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      onOpenViewer(img);
+                    }}
+                    className="absolute top-1 left-1 z-20 flex items-center justify-center w-6 h-6 rounded-md bg-black/70 backdrop-blur border border-white/25 text-white/90 hover:bg-black/85 hover:border-white/45 transition-all active:scale-95"
+                    aria-label={t.viewOriginal}
+                    title={t.viewOriginal}
+                  >
+                    <Maximize2 className="w-3.5 h-3.5" />
+                  </button>
                 )}
               </div>
             ))}
