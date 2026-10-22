@@ -13,7 +13,11 @@ export const API_MODEL_MAP: Record<ProviderOption, Record<string, string>> = {
     "openai-fast": "openai-fast", // text
     "qwen-image-edit": "qwen-image-edit", // edit (placeholder/internal)
     "wan2_2-i2v": "wan2.2", // video (internal/HF space convention)
-    RealESRGAN_x4plus: "RealESRGAN_x4plus", // upscaler
+    // upscaler (Upsampler/media-upscaler model_selection names)
+    "4xRealESRGAN": "4xRealESRGAN",
+    "4xSwinIRLarge": "4xSwinIRLarge",
+    "4xRealHATGANSharper": "4xRealHATGANSharper",
+    "4xNomosWebPhotoRealPLKSR": "4xNomosWebPhotoRealPLKSR",
   },
   gitee: {
     "z-image-turbo": "z-image-turbo",
@@ -242,10 +246,27 @@ export const TEXT_MODELS: UnifiedModelOption[] = [
   },
 ];
 
+// Model names must match the upscaler Space's `model_selection` dropdown
+// (Upsampler/media-upscaler); all four are 4x and were verified working.
 export const UPSCALER_MODELS: UnifiedModelOption[] = [
   {
-    label: "RealESRGAN x4 Plus",
-    value: "huggingface:RealESRGAN_x4plus",
+    label: "RealESRGAN x4 (faithful)",
+    value: "huggingface:4xRealESRGAN",
+    provider: "huggingface",
+  },
+  {
+    label: "SwinIR Large x4 (smooth)",
+    value: "huggingface:4xSwinIRLarge",
+    provider: "huggingface",
+  },
+  {
+    label: "RealHATGAN Sharper x4",
+    value: "huggingface:4xRealHATGANSharper",
+    provider: "huggingface",
+  },
+  {
+    label: "NomosWebPhoto x4 (detail-heavy)",
+    value: "huggingface:4xNomosWebPhotoRealPLKSR",
     provider: "huggingface",
   },
 ];

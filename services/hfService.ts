@@ -40,7 +40,13 @@ const QWEN_IMAGE_21_TURBO_BASE_API_URL =
 const OVIS_IMAGE_BASE_API_URL = "https://ath-maas-ovis-image-7b.hf.space";
 const FLUX_SCHNELL_BASE_API_URL =
   "https://black-forest-labs-flux-1-schnell.hf.space";
-const UPSCALER_BASE_API_URL = "https://tuan2308-upscaler.hf.space";
+// Upscaler Space (verified live 2026-10-21/22). Replaces tuan2308/upscaler,
+// which was deleted/privatised (every route 404s). Real-ESRGAN-family 4x
+// super-resolution on ZeroGPU: 744x704 -> 2976x2816 in ~4-9s for every model
+// on its dropdown, usable with free/anonymous quota (unlike
+// prithivMLmods/PiD-Image-Upscaler, whose xlarge 90s booking is refused for
+// non-PRO accounts).
+const UPSCALER_BASE_API_URL = "https://upsampler-media-upscaler.hf.space";
 const POLLINATIONS_API_URL = "https://text.pollinations.ai/openai";
 const WAN2_VIDEO_API_URL =
   "https://fradeck619-wan2-2-fp8da-aoti-faster.hf.space";
@@ -1274,7 +1280,29 @@ export const generateImage = async (
   }
 };
 
-export const upscaler = async (url: string): Promise<{ url: string }> => {
+// Upscale an image 4x through the named API:
+//   /upscale_image(image, model_selection, face_enhance) -> image
+// The Space answers with a PAIR [original, upscaled] (a before/after slider on
+// its own UI), so the upscaled entry must be picked explicitly — taking
+// data[0] would silently return the untouched input.
+const UPSCALER_MODEL_NAMES = [
+  "4xRealESRGAN",
+  "4xSwinIRLarge",
+  "4xRealHATGANSharper",
+  "4xNomosWebPhotoRealPLKSR",
+];
+
+export const upscaler = async (
+  url: string,
+  model: string = "4xRealESRGAN",
+): Promise<{ url: string }> => {
+  // Configs persisted before the Space swap still hold the old model name
+  // ("RealESRGAN_x4plus"); fall back to a name this Space accepts rather than
+  // sending an unknown option and failing.
+  const modelName = UPSCALER_MODEL_NAMES.includes(model)
+    ? model
+    : "4xRealESRGAN";
+
   // Fetch image as blob first to upload to Gradio
   const blob = await fetchBlob(url);
 
@@ -1283,26 +1311,33 @@ export const upscaler = async (url: string): Promise<{ url: string }> => {
       // 1. Upload to Gradio
       const filePath = await uploadToGradio(UPSCALER_BASE_API_URL, blob, token);
 
-      // 2. Call inference
-      const output: any = await runGradioTask(
+      // 2. Call inference (parameters are positional, in signature order)
+      const output: any = await runGradioNamedTask(
         UPSCALER_BASE_API_URL,
-        [
-          { path: filePath, meta: { _type: "gradio.FileData" } },
-          "RealESRGAN_x4plus",
-          0.5,
-          false,
-          4,
-        ],
-        1, // fn_index
-        17, // trigger_id
+        "upscale_image",
+        {
+          image: { path: filePath, meta: { _type: "gradio.FileData" } },
+          model_selection: modelName,
+          face_enhance: false,
+        },
         token,
       );
 
       const data = output.data;
-      const url = gradioOutputUrl(data, UPSCALER_BASE_API_URL);
-      if (!url) throw new Error("error_invalid_response");
+      const items = Array.isArray(data?.[0]) ? data[0] : data;
+      if (!Array.isArray(items) || items.length === 0) {
+        throw new Error("error_invalid_response");
+      }
+      // Prefer the entry explicitly named "upscaled"; otherwise the last one.
+      const picked =
+        items.find((item: any) =>
+          String(item?.orig_name ?? item?.path ?? "").includes("upscaled"),
+        ) ?? items[items.length - 1];
 
-      return { url };
+      const resultUrl = gradioFileUrl(picked, UPSCALER_BASE_API_URL);
+      if (!resultUrl) throw new Error("error_invalid_response");
+
+      return { url: resultUrl };
     } catch (error) {
       console.error("Upscaler Error:", error);
       throw Object.assign(new Error("error_upscale_failed"), { cause: error });

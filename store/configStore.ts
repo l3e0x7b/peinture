@@ -120,7 +120,7 @@ export const useConfigStore = create<ConfigState>()(
       textModelConfig: { provider: "huggingface", model: "openai-fast" },
       upscalerModelConfig: {
         provider: "huggingface",
-        model: "RealESRGAN_x4plus",
+        model: "4xRealESRGAN",
       },
 
       openaiConfig: {

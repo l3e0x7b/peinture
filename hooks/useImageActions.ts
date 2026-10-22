@@ -67,7 +67,7 @@ export const useImageActions = () => {
       const config = getUpscalerModelConfig();
       let newUrl = "";
       if (config.provider === "huggingface") {
-        const result = await upscaler(currentImage.url);
+        const result = await upscaler(currentImage.url, config.model);
         newUrl = result.url;
       } else {
         const customProviders = getCustomProviders();
@@ -82,7 +82,7 @@ export const useImageActions = () => {
           );
           newUrl = result.url;
         } else {
-          const result = await upscaler(currentImage.url);
+          const result = await upscaler(currentImage.url, config.model);
           newUrl = result.url;
         }
       }
@@ -123,13 +123,24 @@ export const useImageActions = () => {
           ext = "png";
 
         const fileName = `${targetImageId}-upscaled.${ext}`;
-        const opfsUrl = await saveTempFileToOPFS(blob, fileName);
+        // OPFS is the durable store (and `fileName` is what re-hydration reads
+        // on reload); the UI must display a blob: URL — an "opfs://" reference
+        // is not a scheme the browser can render in an <img>.
+        await saveTempFileToOPFS(blob, fileName);
+        const displayUrl = URL.createObjectURL(blob);
 
-        if (currentImage.url?.startsWith("blob:")) URL.revokeObjectURL(currentImage.url);
+        // Revoke the superseded blob URL only after the re-render below has
+        // swapped the <img> (and the comparison slider's beforeImage) over to
+        // displayUrl; revoking synchronously raced the commit and logged
+        // "net::ERR_FILE_NOT_FOUND" for the URL still on screen.
+        const previousUrl = currentImage.url;
+        if (previousUrl?.startsWith("blob:")) {
+          setTimeout(() => URL.revokeObjectURL(previousUrl), 1000);
+        }
 
         const updatedImage = {
           ...currentImage,
-          url: opfsUrl,
+          url: displayUrl,
           fileName: fileName,
           isUpscaled: true,
           width: width,
@@ -189,9 +200,15 @@ export const useImageActions = () => {
       await deleteTempFileFromOPFS(currentImage.videoFileName);
     }
 
-    // Revoke blob URLs to free memory
-    if (currentImage.url?.startsWith("blob:")) URL.revokeObjectURL(currentImage.url);
-    if (currentImage.videoUrl?.startsWith("blob:")) URL.revokeObjectURL(currentImage.videoUrl);
+    // Revoke blob URLs to free memory — deferred, so they are not revoked
+    // while the image being removed is still mounted (same race as the
+    // upscale-apply path above).
+    const removedUrl = currentImage.url;
+    const removedVideoUrl = currentImage.videoUrl;
+    setTimeout(() => {
+      if (removedUrl?.startsWith("blob:")) URL.revokeObjectURL(removedUrl);
+      if (removedVideoUrl?.startsWith("blob:")) URL.revokeObjectURL(removedVideoUrl);
+    }, 1000);
 
     const newHistory = history.filter((img) => img.id !== currentImage.id);
     setHistory(newHistory);
